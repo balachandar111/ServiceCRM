@@ -7,15 +7,13 @@ const API = axios.create({
 });
 
 
-// TOKEN
+// ================= TOKEN =================
 
 API.interceptors.request.use(
   (req) => {
 
     const token =
-      localStorage.getItem(
-        "token"
-      );
+      localStorage.getItem("token");
 
     if (token) {
 
