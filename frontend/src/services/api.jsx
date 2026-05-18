@@ -6,9 +6,6 @@ const API = axios.create({
     import.meta.env.VITE_API_URL,
 });
 
-
-// ================= TOKEN =================
-
 API.interceptors.request.use(
   (req) => {
 
