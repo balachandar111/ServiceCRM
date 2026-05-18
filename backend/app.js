@@ -4,15 +4,20 @@ require("express");
 const cors =
 require("cors");
 
-const app =
-express();
+require("dotenv").config();
+
+const app = express();
 
 
-// ================= MIDDLEWARE =================
+// ================= CORS =================
 
 app.use(cors({
   origin: "*",
+  credentials: true,
 }));
+
+
+// ================= BODY PARSER =================
 
 app.use(express.json());
 
