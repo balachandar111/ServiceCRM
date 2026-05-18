@@ -353,58 +353,7 @@ async (req, res) => {
 
 // ================= UPDATE CUSTOMER =================
 
-const updateCustomer =
-async (req, res) => {
 
-  try {
-
-    const customer =
-      await Customer.findOneAndUpdate(
-
-        {
-
-          _id:
-            req.params.id,
-
-          createdBy:
-            req.user._id,
-
-        },
-
-        req.body,
-
-        {
-          new: true,
-        }
-      );
-
-
-    if (!customer) {
-
-      return res.status(404).json({
-
-        message:
-          "Customer not found",
-      });
-    }
-
-
-    res.json({
-
-      success: true,
-
-      customer,
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-
-      message:
-        error.message,
-    });
-  }
-};
 
 
 
@@ -416,45 +365,82 @@ async (req, res) => {
   try {
 
     const customer =
-      await Customer.findOneAndDelete({
+    await Customer.findById(
+      req.params.id
+    );
 
-        _id:
-          req.params.id,
+    if (!customer) {
 
-        createdBy:
-          req.user._id,
-
+      return res.status(404)
+      .json({
+        message:
+        "Customer not found",
       });
+    }
 
+    await customer.deleteOne();
+
+    res.json({
+      success: true,
+      message:
+      "Customer deleted",
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message:
+      "Server Error",
+    });
+  }
+};
+const updateCustomer = async (req, res) => {
+
+  try {
+
+    const customer =
+      await Customer.findById(
+        req.params.id
+      );
 
     if (!customer) {
 
       return res.status(404).json({
 
-        message:
-          "Customer not found",
+        success: false,
+
+        message: "Customer not found",
       });
     }
 
+    const updatedCustomer =
+     await Customer.findByIdAndUpdate(
+  req.params.id,
+  req.body,
+  { returnDocument: "after" }
+);
 
-    res.json({
+    res.status(200).json({
 
       success: true,
 
-      message:
-        "Customer deleted",
+      customer: updatedCustomer,
     });
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
 
-      message:
-        error.message,
+      success: false,
+
+      message: error.message,
     });
   }
 };
-
 
 module.exports = {
 

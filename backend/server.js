@@ -42,6 +42,10 @@ app.use(
 
 // CUSTOMER ROUTES
 app.use(
+  "/api/customer",
+  customerRoutes
+);
+app.use(
   "/api/customers",
   customerRoutes
 );

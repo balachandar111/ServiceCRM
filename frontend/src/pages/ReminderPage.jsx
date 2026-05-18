@@ -9,10 +9,17 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 import {
+
   FaBell,
+
   FaPhoneAlt,
+
   FaBuilding,
+
   FaUserTie,
+
+  FaEdit,
+
 } from "react-icons/fa";
 
 const ReminderPage = ({
@@ -59,6 +66,140 @@ const ReminderPage = ({
     setTodayReminders(reminders);
 
   }, [customers]);
+
+  const [showUpdateModal,
+setShowUpdateModal] =
+useState(false);
+
+const [selectedCustomer,
+setSelectedCustomer] =
+useState(null);
+
+const [formData,
+setFormData] =
+useState({
+
+  name: "",
+
+  company: "",
+
+  email: "",
+
+  phone: "",
+
+  leadStage: "",
+
+  priority: "",
+
+  assignedTo: "",
+
+  followUpDate: "",
+
+  remark: "",
+});
+
+// ================= HANDLE UPDATE =================
+
+const handleUpdate =
+(customer) => {
+
+  setSelectedCustomer(
+    customer
+  );
+
+  setFormData({
+
+    name:
+      customer.name || "",
+
+    company:
+      customer.company || "",
+
+    email:
+      customer.email || "",
+
+    phone:
+      customer.phone || "",
+
+    leadStage:
+      customer.leadStage || "",
+
+    priority:
+      customer.priority || "",
+
+    assignedTo:
+      customer.assignedTo || "",
+
+    followUpDate:
+      customer.followUpDate
+      ?.slice(0, 10) || "",
+
+    remark:
+      customer.remark || "",
+  });
+
+  setShowUpdateModal(true);
+};
+
+
+// ================= UPDATE CUSTOMER =================
+
+const updateCustomer =
+async (e) => {
+
+  e.preventDefault();
+
+  try {
+
+    const response =
+      await fetch(
+
+        `http://localhost:5000/api/customers/${selectedCustomer._id}`,
+
+        {
+
+          method: "PUT",
+
+          headers: {
+
+            "Content-Type":
+            "application/json",
+
+            Authorization:
+              `Bearer ${localStorage.getItem("token")}`,
+          },
+
+          body: JSON.stringify(
+            formData
+          ),
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (data.success) {
+
+      alert(
+        "Customer Updated Successfully"
+      );
+
+      setShowUpdateModal(false);
+
+      window.location.reload();
+
+    } else {
+
+      alert(data.message);
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Update Failed");
+  }
+};
 
   // ================= SELECTED DATE FILTER =================
 
@@ -293,7 +434,22 @@ const ReminderPage = ({
 
                     </div>
 
+<button
 
+  className="
+update-customer-btn
+"
+
+  onClick={() =>
+    handleUpdate(customer)
+  }
+>
+
+  <FaEdit />
+
+  Update
+
+</button>
                     <div className="customer-right">
 
                       <span className="priority-badge">
@@ -311,6 +467,8 @@ const ReminderPage = ({
                         }
 
                       </span>
+                   
+                      
 
                     </div>
 

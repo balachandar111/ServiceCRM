@@ -16,6 +16,9 @@ import "react-calendar/dist/Calendar.css";
 import {
   useNavigate,
 } from "react-router-dom";
+import {
+  FaSearch
+} from "react-icons/fa";
 
 import {
 
@@ -130,9 +133,61 @@ async (e) => {
     );
   }
 };
+const deleteCustomer = async (customer) => {
 
+  // CHECK OBJECT
 
+  if (!customer || !customer._id) {
 
+    alert("Customer ID not found");
+
+    return;
+  }
+
+  const confirmDelete =
+    window.confirm(
+      "Delete this customer?"
+    );
+
+  if (!confirmDelete)
+    return;
+
+  try {
+
+    console.log(
+      "Deleting Customer ID =>",
+      customer._id
+    );
+
+    await API.delete(
+
+      `/customers/${customer._id}`
+    );
+
+    alert(
+      "Customer Deleted Successfully"
+    );
+
+    fetchCustomers();
+
+    setShowCustomerDetails(false);
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert(
+
+      error.response?.data?.message ||
+
+      "Delete Failed"
+    );
+  }
+};
+
+const [showCustomerDetails,
+setShowCustomerDetails] =
+useState(false);
 
 //for Create employee
 const [showEmployeeModal,
@@ -350,6 +405,14 @@ storedUser
 : null;
 
 
+const [fromDate,
+setFromDate] =
+useState("");
+
+const [toDate,
+setToDate] =
+useState("");
+
   // ================= STATES =================
   const role =
 localStorage.getItem("role");
@@ -386,6 +449,11 @@ const [dashboardType,
 setDashboardType] =
 useState("overall");
 
+const [analyticsFilter,
+setAnalyticsFilter] =
+useState("overall");
+
+
   const [activeMenu, setActiveMenu] =
     useState("dashboard");
 const [searchTerm, setSearchTerm] =
@@ -404,6 +472,25 @@ const [todayReminders,
 setTodayReminders] =
 useState([]);
 const customersPerPage = 5;
+const [userSearch,
+setUserSearch] =
+useState("");
+
+const [showUserList,
+setShowUserList] =
+useState(false);
+const filteredUsers =
+users.filter((user) =>
+
+  user.name
+  .toLowerCase()
+
+  .includes(
+
+    userSearch
+    .toLowerCase()
+  )
+);
 
 
 //cust update
@@ -751,52 +838,6 @@ const totalPages = Math.ceil(
 );
 
 
-const performanceData = [
-
-  {
-    name: "Awareness",
-
-    value:
-      customers.filter(
-        (c) =>
-          c.leadStage ===
-          "Awareness"
-      ).length,
-  },
-
-  {
-    name: "Interest",
-
-    value:
-      customers.filter(
-        (c) =>
-          c.leadStage ===
-          "Interest"
-      ).length,
-  },
-
-  {
-    name: "Desire",
-
-    value:
-      customers.filter(
-        (c) =>
-          c.leadStage ===
-          "Desire"
-      ).length,
-  },
-
-  {
-    name: "Closure",
-
-    value:
-      customers.filter(
-        (c) =>
-          c.leadStage ===
-          "Closure"
-      ).length,
-  },
-];
 // ================= FORMAT DATE =================
 
 const formatDate = (date) => {
@@ -995,44 +1036,40 @@ useEffect(() => {
   };
 // ================= FULL UPDATE =================
 
-const handleFullUpdate =
-(customer) => {
+const handleFullUpdate = (customer) => {
 
-  setSelectedCustomer(
-    customer
-  );
+  console.log("Selected Customer =>", customer);
+
+  if (!customer || !customer._id) {
+
+    alert("Invalid customer");
+
+    return;
+  }
+
+  setSelectedCustomer(customer);
 
   setFormData({
 
-    name:
-      customer.name || "",
+    name: customer.name || "",
 
-    company:
-      customer.company || "",
+    company: customer.company || "",
 
-    email:
-      customer.email || "",
+    email: customer.email || "",
 
-    phone:
-      customer.phone || "",
+    phone: customer.phone || "",
 
-    source:
-      customer.source || "",
+    source: customer.source || "",
 
-    leadStage:
-      customer.leadStage || "",
+    leadStage: customer.leadStage || "",
 
-    priority:
-      customer.priority || "",
+    priority: customer.priority || "",
 
-    assignedTo:
-      customer.assignedTo || "",
+    assignedTo: customer.assignedTo || "",
 
-    notes:
-      customer.notes || "",
+    remark: customer.remark || "",
 
-    investment:
-      customer.investment || "",
+    investment: customer.investment || "",
 
     followUpDate:
       customer.followUpDate
@@ -1045,31 +1082,46 @@ const handleFullUpdate =
 
 // ================= SAVE FULL UPDATE =================
 
-const saveFullUpdate =
-async (e) => {
+const saveFullUpdate = async (e) => {
 
   e.preventDefault();
 
+  // CHECK CUSTOMER
+
+  if (!selectedCustomer || !selectedCustomer._id) {
+
+    alert("Customer not selected");
+
+    return;
+  }
+
   try {
 
-    await API.put(
+    console.log("Updating ID =>", selectedCustomer._id);
+
+    const response = await API.put(
 
       `/customers/${selectedCustomer._id}`,
 
       formData
     );
 
-    alert(
-      "Customer Updated Successfully"
-    );
+    console.log(response.data);
+
+    alert("Customer Updated Successfully");
 
     fetchCustomers();
 
-    setShowUpdateModal(false);
+    setShowCustomerUpdate(false);
 
   } catch (error) {
 
     console.log(error);
+
+    alert(
+      error.response?.data?.message ||
+      "Update Failed"
+    );
   }
 };
 
@@ -1254,145 +1306,270 @@ async (e) => {
 
   // ================= ANALYTICS =================
 
-  const totalCustomers =
-    customers.length;
 
- 
 
-  const converted =
-    customers.filter(
+ // ================= FILTER ANALYTICS =================
 
-      (c) =>
-        c.leadStage === "Closure"
+// ================= DATE FILTER =================
 
-    ).length;
+const getFilteredCustomers =
+() => {
 
-  const activeLeads =
-    customers.filter(
+  // NO FILTER
 
-      (c) =>
-        c.leadStage !== "Closure"
+  if (
+    !fromDate &&
+    !toDate
+  ) {
 
-    ).length;
+    return customers;
+  }
+
+  return customers.filter(
+    (customer) => {
+
+      const customerDate =
+        new Date(
+          customer.createdAt
+        );
+
+      // FROM DATE
+
+      if (fromDate) {
+
+        const startDate =
+          new Date(fromDate);
+
+        startDate.setHours(
+          0, 0, 0, 0
+        );
+
+        if (
+          customerDate <
+          startDate
+        ) {
+
+          return false;
+        }
+      }
+
+      // TO DATE
+
+      if (toDate) {
+
+        const endDate =
+          new Date(toDate);
+
+        endDate.setHours(
+          23, 59, 59, 999
+        );
+
+        if (
+          customerDate >
+          endDate
+        ) {
+
+          return false;
+        }
+      }
+
+      return true;
+    }
+  );
+};
+
+
+// ================= FILTERED CUSTOMERS =================
+
+const analyticsCustomers =
+getFilteredCustomers();
+
+
+// ================= ANALYTICS =================
+
+const totalCustomers =
+analyticsCustomers.length;
+
+const converted =
+analyticsCustomers.filter(
+
+  (c) =>
+    c.leadStage ===
+    "Closure"
+
+).length;
+
+const activeLeads =
+analyticsCustomers.filter(
+
+  (c) =>
+    c.leadStage !==
+    "Closure"
+
+).length;
+
+
+// ================= STAGE DATA =================
+
+const stageData = [
+
+  {
+    name: "Awareness",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Awareness"
+      ).length,
+  },
+
+  {
+    name: "Interest",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Interest"
+      ).length,
+  },
+
+  {
+    name: "Desire",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Desire"
+      ).length,
+  },
+
+  {
+    name: "Closure",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Closure"
+      ).length,
+  },
+];
+
+
+// ================= SOURCE DATA =================
+
+const sourceData = [
+
+  {
+    name: "Website",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.source ===
+          "Website"
+      ).length,
+  },
+
+  {
+    name: "Instagram",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.source ===
+          "Instagram"
+      ).length,
+  },
+
+  {
+    name: "LinkedIn",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.source ===
+          "LinkedIn"
+      ).length,
+  },
+
+  {
+    name: "Referral",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.source ===
+          "Referral"
+      ).length,
+  },
+];
+
+
+// ================= PERFORMANCE DATA =================
+
+const performanceData = [
+
+  {
+    name: "Awareness",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Awareness"
+      ).length,
+  },
+
+  {
+    name: "Interest",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Interest"
+      ).length,
+  },
+
+  {
+    name: "Desire",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Desire"
+      ).length,
+  },
+
+  {
+    name: "Closure",
+
+    value:
+      analyticsCustomers.filter(
+        (c) =>
+          c.leadStage ===
+          "Closure"
+      ).length,
+  },
+];
+
+
+
+// ================= FILTER CUSTOMERS =================
+
 
 
   // ================= CHART DATA =================
 
-  const stageData = [
-
-    {
-      name: "Awareness",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.leadStage ===
-            "Awareness"
-        ).length,
-    },
-
-    {
-      name: "Interest",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.leadStage ===
-            "Interest"
-        ).length,
-    },
-
-    {
-      name: "Desire",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.leadStage ===
-            "Desire"
-        ).length,
-    },
-
-    {
-      name: "Closure",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.leadStage ===
-            "Closure"
-        ).length,
-    },
-  ];
 
 
-  const sourceData = [
 
-    {
-      name: "Website",
 
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "Website"
-        ).length,
-    },
-
-    {
-      name: "Instagram",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "Instagram"
-        ).length,
-    },
-
-    {
-      name: "LinkedIn",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "LinkedIn"
-        ).length,
-    },
-
-    {
-      name: "Referral",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "Referral"
-        ).length,
-    },
-
-    {
-      name: "Cold Call",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "Cold Call"
-        ).length,
-    },
-     {
-      name: "Facebook",
-
-      value:
-        customers.filter(
-          (c) =>
-            c.source ===
-            "Facebook"
-        ).length,
-    },
-  ];
 
 
   const COLORS = [
@@ -1640,93 +1817,316 @@ async (e) => {
                     Sales &
                     Customer Insights
                   </p>
-
-                </div>
-
-
-                <div className="action-buttons">
-                  {
+   <div className="action-buttons">
+          
+                  
+                  
+    {
   role ===
   "super_admin" && (
 
     <div
-      style={{
-        marginTop: "20px",
-      }}
+      className="
+dashboard-user-filter
+"
     >
 
-      <select
+      {/* SEARCH WRAPPER */}
 
-        value={
-          selectedUser
-        }
+   <div
+  className="
+user-search-wrapper
+"
+>
 
-        onChange={
-          async (e) => {
+  {/* SEARCH ICON */}
 
-            const value =
-              e.target.value;
+  <FaSearch
+    className="
+search-icon
+"
+  />
 
-            setSelectedUser(
-              value
-            );
 
-            await filterByUser(
-              value
-            );
-          }
-        }
+  {/* INPUT */}
 
-        style={{
+  <input
 
-          padding: "12px",
+    type="text"
 
-          borderRadius: "10px",
+    placeholder="
+Search user dashboard...
+"
 
-          border:
-          "1px solid #ddd",
+    value={
+      userSearch
+    }
 
-          width: "250px",
-        }}
-      >
+    onChange={(e) => {
 
-        <option value="">
+      setUserSearch(
+        e.target.value
+      );
 
-          Overall Dashboard
+      setShowUserList(
+        true
+      );
+    }}
 
-        </option>
+    onFocus={() =>
+      setShowUserList(
+        true
+      )
+    }
 
-        {
-          users.map(
-            (user) => (
+    className="
+user-search-input
+"
+  />
 
-              <option
+</div>
 
-                key={
-                  user._id
+      {/* USER LIST */}
+
+      {
+        showUserList && (
+
+          <div
+            className="
+user-search-list
+"
+          >
+
+            {/* OVERALL DASHBOARD */}
+
+            <div
+
+              className="
+user-search-item
+"
+
+              onClick={
+                async () => {
+
+                  setSelectedUser("");
+
+                  setUserSearch(
+                    "Overall Dashboard"
+                  );
+
+                  setShowUserList(
+                    false
+                  );
+
+                  await filterByUser(
+                    ""
+                  );
                 }
+              }
+            >
 
-                value={
-                  user._id
-                }
-              >
+              Overall Dashboard
 
-                {user.name}
+            </div>
 
-              </option>
-            )
-          )
-        }
 
-      </select>
+            {/* USER LIST */}
+
+            {
+              filteredUsers.length >
+              0 ? (
+
+                filteredUsers.map(
+                  (user) => (
+
+                    <div
+
+                      key={
+                        user._id
+                      }
+
+                      className="
+user-search-item
+"
+
+                      onClick={
+                        async () => {
+
+                          setSelectedUser(
+                            user._id
+                          );
+
+                          setUserSearch(
+                            user.name
+                          );
+
+                          setShowUserList(
+                            false
+                          );
+
+                          await filterByUser(
+                            user._id
+                          );
+                        }
+                      }
+                    >
+
+                      <div
+                        className="
+user-item-content
+"
+                      >
+
+                        <div
+                          className="
+user-avatar
+"
+                        >
+
+                          {
+                            user.name
+                            ?.charAt(0)
+                            ?.toUpperCase()
+                          }
+
+                        </div>
+
+                        <div>
+
+                          <h4>
+
+                            {user.name}
+
+                          </h4>
+
+                          <p>
+
+                            {user.email}
+
+                          </p>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+                  )
+                )
+
+              ) : (
+
+                <div
+                  className="
+no-user-found
+"
+                >
+
+                  No users found
+
+                </div>
+              )
+            }
+
+          </div>
+        )
+      }
 
     </div>
   )
 }
 
-                 
 
                 </div>
+                
+                </div>
+<div className="
+date-filter-container
+"
+>
+   <h3>
+    Filter:
+  </h3>
+
+  {/* FROM DATE */}
+
+  <div className="
+date-filter-box
+"
+  >
+
+    <label>
+      From Date
+    </label>
+
+    <input
+
+      type="date"
+
+      value={fromDate}
+
+      onChange={(e) =>
+
+        setFromDate(
+          e.target.value
+        )
+      }
+    />
+
+  </div>
+
+
+  {/* TO DATE */}
+
+  <div className="
+date-filter-box
+"
+  >
+
+    <label>
+      To Date
+    </label>
+
+    <input
+
+      type="date"
+
+      value={toDate}
+
+      onChange={(e) =>
+
+        setToDate(
+          e.target.value
+        )
+      }
+    />
+
+  </div>
+
+
+  {/* CLEAR */}
+
+  <button
+
+    className="
+clear-filter-btn
+"
+
+    onClick={() => {
+
+      setFromDate("");
+
+      setToDate("");
+    }}
+  >
+
+    Clear
+
+  </button>
+  
+
+</div>
+
+             
 
               </div>
 
@@ -1822,6 +2222,7 @@ async (e) => {
               {/* CHARTS */}
 
               <div className="charts-grid">
+                
 
                 <div className="chart-card">
 
@@ -2290,6 +2691,18 @@ Search by name, email or phone
                           Status
 
                         </button>
+                        <button
+
+  className="delete-btn"
+
+ onClick={() =>
+  deleteCustomer(customer)
+}
+>
+
+  Delete
+
+</button>
 
                       </div>
 
@@ -2503,14 +2916,21 @@ Search by name, email or phone
               selectedCustomers.map(
                 (customer) => (
 
-                  <div
+                 <div
 
-                    key={
-                      customer._id
-                    }
+  key={
+    customer._id
+  }
 
-                    className="customer-box"
-                  >
+  className="customer-box"
+
+  onClick={() => {
+
+    setSelectedCustomer(customer);
+
+    setShowCustomerDetails(true);
+  }}
+>
 
                     <div>
 
@@ -2552,6 +2972,8 @@ Search by name, email or phone
                         }
 
                       </span>
+               
+                      
 
                     </div>
 
@@ -5050,6 +5472,191 @@ Leave empty if no change
           </button>
 
         </form>
+
+      </div>
+
+    </div>
+  )
+}
+{
+  showCustomerDetails &&
+  selectedCustomer && (
+
+    <div className="modal-overlay">
+
+      <div className="modal">
+
+        <div className="modal-header">
+
+          <h2>
+            Customer Details
+          </h2>
+
+          <span
+
+            className="close-icon"
+
+            onClick={() =>
+              setShowCustomerDetails(false)
+            }
+          >
+
+            ✕
+
+          </span>
+
+        </div>
+
+
+        <div className="customer-detail-wrapper">
+
+          <div className="detail-row">
+
+            <span>Name</span>
+
+            <h4>
+              {selectedCustomer.name}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Company</span>
+
+            <h4>
+              {selectedCustomer.company}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Email</span>
+
+            <h4>
+              {selectedCustomer.email}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Phone</span>
+
+            <h4>
+              {selectedCustomer.phone}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Lead Stage</span>
+
+            <h4>
+              {selectedCustomer.leadStage}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Priority</span>
+
+            <h4>
+              {selectedCustomer.priority}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Assigned To</span>
+
+            <h4>
+              {selectedCustomer.assignedTo}
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row">
+
+            <span>Follow Up</span>
+
+            <h4>
+
+              {
+                selectedCustomer
+                ?.followUpDate
+                ?.slice(0, 10)
+              }
+
+            </h4>
+
+          </div>
+
+
+          <div className="detail-row full-row">
+
+            <span>Remark</span>
+
+            <h4>
+              {
+                selectedCustomer.remark
+              }
+            </h4>
+
+          </div>
+
+        </div>
+
+
+      <div className="customer-action-buttons">
+
+  <button
+
+    className="update-customer-btn"
+
+    onClick={() => {
+
+      setShowCustomerDetails(false);
+
+      handleFullUpdate(
+        selectedCustomer
+      );
+    }}
+  >
+
+    Update Customer
+
+  </button>
+
+
+  <button
+
+    className="delete-customer-btn"
+
+    onClick={() =>
+
+  deleteCustomer(
+    selectedCustomer
+  )
+}
+  >
+
+    Delete Customer
+
+  </button>
+
+</div>
 
       </div>
 
