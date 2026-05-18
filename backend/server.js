@@ -1,26 +1,35 @@
 require("dotenv").config();
 
-const express = require("express");
-const cors = require("cors");
+const express =
+require("express");
 
-const connectDB = require("./config/db");
+const cors =
+require("cors");
 
-const authRoutes =
-  require("./routes/authRoutes");
-  const userRoutes =
-require("./routes/userRoutes");
+const mongoose =
+require("mongoose");
 
-const customerRoutes =
-  require("./routes/customerRoutes");
+const connectDB =
+require("./config/db");
+
+
+// ================= EXPRESS =================
 
 const app = express();
 
 
-// ================= MIDDLEWARES =================
+// ================= MIDDLEWARE =================
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  credentials: true,
+}));
 
 app.use(express.json());
+
+app.use(express.urlencoded({
+  extended: true,
+}));
 
 
 // ================= DATABASE =================
@@ -30,60 +39,66 @@ connectDB();
 
 // ================= ROUTES =================
 
-// AUTH ROUTES
+const authRoutes =
+require("./routes/authRoutes");
+
+const userRoutes =
+require("./routes/userRoutes");
+
+const customerRoutes =
+require("./routes/customerRoutes");
+
+const employeeRoutes =
+require("./routes/employeeRoutes");
+
+
+// AUTH
+
 app.use(
   "/api/auth",
   authRoutes
 );
+
+
+// USERS
+
 app.use(
   "/api/users",
   userRoutes
 );
 
-// CUSTOMER ROUTES
-app.use(
-  "/api/customer",
-  customerRoutes
-);
+
+// CUSTOMERS
+
 app.use(
   "/api/customers",
   customerRoutes
 );
-const employeeRoutes =
-require("./routes/employeeRoutes");
+
+
+// EMPLOYEES
 
 app.use(
   "/api/employees",
   employeeRoutes
 );
+
+
+// UPLOADS
+
 app.use(
   "/uploads",
   express.static("uploads")
 );
-// ================= SERVER =================
 
 
-require("dotenv").config();
+// TEST ROUTE
 
-const mongoose =
-require("mongoose");
+app.get("/", (req, res) => {
 
-
-// ================= DATABASE =================
-
-mongoose.connect(
-  process.env.MONGO_URI
-)
-.then(() => {
-
-  console.log(
-    "MongoDB Connected ✅"
+  res.send(
+    "Backend Running"
   );
-
-})
-.catch((err) => {
-
-  console.log(err);
 
 });
 
