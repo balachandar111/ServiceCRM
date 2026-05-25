@@ -116,15 +116,17 @@ async (e) => {
 
           <div className="branding">
 
-            <div className="logo-box">
+         
 
-              <FaChartLine />
+  <img
 
-            </div>
+    src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1779705309/bling_tech_logo_white_lmsgoz.png"
 
-            <h1>
-              Bling CRM
-            </h1>
+    alt="logo"
+
+    className="small-logo"
+  />
+       
 
             <p>
               Smart Customer Relationship
