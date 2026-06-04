@@ -1,165 +1,120 @@
-// 📁 src/pages/Login.jsx
-
-import React,
-{
-  useState,
-} from "react";
-
+import React, { useState } from "react";
 import API from "../services/api";
-
+import { useNavigate } from "react-router-dom";
 import {
-  useNavigate,
-} from "react-router-dom";
-
-import {
-
   FaEnvelope,
-
   FaLock,
-
-  FaChartLine,
-
+  FaSignInAlt,
 } from "react-icons/fa";
-
 import "./Login.css";
 
 const Login = () => {
 
-  const navigate =
-    useNavigate();
-
+  const navigate = useNavigate();
 
   const [formData, setFormData] =
     useState({
-
       email: "",
       password: "",
-
     });
-
 
   const handleChange = (e) => {
 
     setFormData({
-
       ...formData,
-
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
+
   };
 
+  const handleSubmit = async (e) => {
 
-  const handleSubmit =
-async (e) => {
+    e.preventDefault();
 
-  e.preventDefault();
+    try {
 
-  try {
+      const { data } =
+        await API.post(
+          "/auth/login",
+          formData
+        );
 
-    const { data } =
-      await API.post(
-        "/auth/login",
-        formData
+      localStorage.setItem(
+        "token",
+        data.token
       );
 
-
-    localStorage.setItem(
-      "token",
-      data.token
-    );
-
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(data.user)
-    );
-
-
-    localStorage.setItem(
-      "role",
-      data.role
-    );
-
-
-    // ================= REDIRECT =================
-
-    if (data.role === "employee") {
-
-      navigate(
-        "/employee-profile"
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
       );
 
-    } else {
+      localStorage.setItem(
+        "role",
+        data.role
+      );
 
-      navigate("/");
+      if (
+        data.role === "employee"
+      ) {
+
+        navigate(
+          "/employee-profile"
+        );
+
+      } else {
+
+        navigate("/");
+      }
+
+    } catch (error) {
+
+      alert(
+        error?.response?.data
+          ?.message ||
+          "Login Failed"
+      );
+
     }
 
-  } catch (error) {
-
-    alert(
-      error.response.data.message
-    );
-  }
-};
-
+  };
 
   return (
 
     <div className="login-page">
+      
 
-      {/* LEFT */}
-
-      <div className="login-left">
-
-        <div className="overlay">
-
-          <div className="branding">
-
+      <div className="login-card">
          
 
-  <img
+        <div className="logo-section">
 
-    src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1779705309/bling_tech_logo_white_lmsgoz.png"
-
-    alt="logo"
-
-    className="small-logo"
-  />
-       
-
-            <p>
-              Smart Customer Relationship
-              Management Platform
-            </p>
-
-          </div>
+          <img
+            src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1779687977/bling_tech_logo_h7rc1m.png"
+            alt="logo"
+            className="login-logo"
+          />
 
         </div>
 
-      </div>
-
-
-      {/* RIGHT */}
-
-      <div className="login-right">
-
-        <form
-          className="login-form"
-          onSubmit={handleSubmit}
-        >
+        <div className="login-header">
 
           <h2>
-            Welcome Back 👋
+            Welcome Back
           </h2>
 
           <p>
-            Login to continue managing
-            your customers and sales.
+            Sign in to access your CRM
+            dashboard and manage
+            customers efficiently.
           </p>
 
+        </div>
 
-          {/* EMAIL */}
+        <form
+          onSubmit={handleSubmit}
+          className="login-form"
+        >
 
           <div className="input-box">
 
@@ -170,15 +125,17 @@ async (e) => {
             <input
               type="email"
               name="email"
-              placeholder="Enter email"
-              onChange={handleChange}
+              placeholder="Email Address"
+              value={
+                formData.email
+              }
+              onChange={
+                handleChange
+              }
               required
             />
 
           </div>
-
-
-          {/* PASSWORD */}
 
           <div className="input-box">
 
@@ -189,33 +146,45 @@ async (e) => {
             <input
               type="password"
               name="password"
-              placeholder="Enter password"
-              onChange={handleChange}
+              placeholder="Password"
+              value={
+                formData.password
+              }
+              onChange={
+                handleChange
+              }
               required
             />
 
           </div>
 
+          <button
+            type="submit"
+            className="login-btn"
+          >
 
-          <button type="submit">
+            <FaSignInAlt />
 
-            Login
+            <span>
+              Sign In
+            </span>
 
           </button>
 
-
-          <div className="bottom-text">
-
-            © 2026 Bling CRM
-
-          </div>
-
         </form>
+
+        <div className="bottom-text">
+
+          © 2026 Bling CRM
+
+        </div>
 
       </div>
 
     </div>
+
   );
+
 };
 
 export default Login;

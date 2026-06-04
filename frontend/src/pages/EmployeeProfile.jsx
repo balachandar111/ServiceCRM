@@ -54,6 +54,30 @@ const EmployeeProfile = () => {
       documents: null,
     });
 
+    const [payslips, setPayslips] =
+useState([]);
+
+const fetchPayslips =
+async () => {
+
+  try {
+
+    const { data } =
+    await API.get(
+      "/employees/my-payslips"
+    );
+
+    setPayslips(
+      data.payslips
+    );
+
+  } catch (error) {
+
+    console.log(error);
+  }
+
+};
+
 
   // ================= FETCH PROFILE =================
 
@@ -95,6 +119,7 @@ const EmployeeProfile = () => {
   useEffect(() => {
 
     fetchProfile();
+    fetchPayslips();
 
   }, []);
 
@@ -549,6 +574,65 @@ async (e) => {
 
 
               {/* ================= DOCUMENTS ================= */}
+              {/* ================= PAYSLIPS ================= */}
+
+<div className="payslip-section">
+
+  <h2 className="payslip-title">
+    Monthly Payslips
+  </h2>
+
+  {
+    payslips.length > 0 ? (
+
+      <div className="payslip-grid">
+
+        {
+          payslips.map((item,index)=>(
+
+            <a
+              key={index}
+              href={item.pdfUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="payslip-card"
+            >
+
+              <div className="payslip-icon">
+                <FaFilePdf />
+              </div>
+
+              <div className="payslip-info">
+
+                <h4>
+                  Payslip
+                </h4>
+
+                <p>
+                  {item.month}/{item.year}
+                </p>
+
+              </div>
+
+            </a>
+
+          ))
+        }
+
+      </div>
+
+    ) : (
+
+      <div className="no-payslip">
+
+        No Payslips Uploaded
+
+      </div>
+
+    )
+  }
+
+</div>
 
               <div className="document-section">
 

@@ -23,11 +23,12 @@ new CloudinaryStorage({
     file
   ) => {
 
-    // IMAGE
+    // PROFILE IMAGE
 
     if (
       file.fieldname ===
       "profileImage"
+   
     ) {
 
       return {

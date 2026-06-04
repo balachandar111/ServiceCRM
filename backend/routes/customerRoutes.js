@@ -3,7 +3,8 @@ require("express");
 
 const router =
 express.Router();
-
+const authMiddleware =
+require("../middlewares/authMiddleware");
 const protect =
 require("../middlewares/authMiddleware");
 
@@ -65,6 +66,7 @@ router.get(
 );
 
 
+
 // UPDATE
 
 router.put(
@@ -72,7 +74,45 @@ router.put(
   protect,
   updateCustomer
 );
+router.put(
+  "/:id",
+  authMiddleware,
+  async (req, res) => {
 
+    try {
+
+      const customer =
+        await CustomerDetails.findByIdAndUpdate(
+
+          req.params.id,
+
+          {
+
+            ...req.body,
+
+            lastModified:
+              new Date(),
+
+          },
+
+          {
+            new: true,
+          }
+
+        );
+
+      res.json(customer);
+
+    } catch (err) {
+
+      res.status(500).json({
+
+        message:
+          err.message,
+      });
+    }
+  }
+);
 
 // DELETE
 

@@ -133,7 +133,101 @@ async (req, res) => {
     });
   }
 };
+//-----payslip---
+const uploadPayslip =
+async (req, res) => {
 
+  try {
+
+    const employee =
+      await Employee.findById(
+        req.params.id
+      );
+
+    if (!employee) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        message:
+        "Employee not found",
+      });
+    }
+
+    employee.payslips.push({
+
+      month:
+        req.body.month,
+
+      year:
+        req.body.year,
+
+      pdfUrl:
+        req.file.path,
+
+      uploadedBy:
+        req.user.id,
+
+    });
+
+    await employee.save();
+
+    res.json({
+
+      success: true,
+
+      message:
+        "Payslip Uploaded",
+
+      employee,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+
+      success: false,
+
+      message:
+        error.message,
+    });
+  }
+};
+const getEmployeePayslips =
+async (req,res)=>{
+
+ try{
+
+  const employee =
+  await Employee.findById(
+    req.employee.id
+  );
+
+  res.json({
+
+    success:true,
+
+    payslips:
+    employee.payslips || []
+
+  });
+
+ }catch(error){
+
+  res.status(500).json({
+
+   success:false,
+
+   message:error.message
+
+  });
+
+ }
+
+};
 
 // ================= LOGIN =================
 
@@ -606,6 +700,8 @@ module.exports = {
   updateEmployeeEmail,
 
   updateProfileImage,
+  uploadPayslip,
+  getEmployeePayslips,
 
   updateEmployeeDocument,
 };

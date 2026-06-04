@@ -29,6 +29,8 @@ import {
   FaTachometerAlt,
   FaUsers,
   FaBell,
+  FaHistory,
+  FaClock,
   FaChartLine,
   FaMoneyBillWave,
   FaUserCheck,
@@ -36,7 +38,9 @@ import {
   FaPlus,
 FaSignOutAlt,
 FaUserCircle,
-FaEdit,
+  FaEdit,
+  FaTrash,
+  FaSyncAlt,
 FaSync,
 
 } from "react-icons/fa";
@@ -66,6 +70,70 @@ const Dashboard = () => {
   const navigate =
     useNavigate();
 
+const [sidebarOpen,
+setSidebarOpen] =
+useState(true);
+const uploadPayslip =
+async ()=>{
+
+ try{
+
+  const formData =
+  new FormData();
+
+  const [year, month] =
+  payslipData.month.split("-");
+
+  formData.append(
+   "month",
+   month
+  );
+
+  formData.append(
+   "year",
+   year
+  );
+
+  formData.append(
+
+   "payslip",
+
+   payslipData.file
+
+  );
+
+ console.log(
+  `/employees/upload-payslip/${selectedEmployee._id}`
+);
+
+await API.put(
+  `/employees/upload-payslip/${selectedEmployee._id}`,
+  formData
+);
+
+  alert(
+   "Payslip Uploaded Successfully"
+  );
+
+  setShowPayslipModal(false);
+
+  fetchEmployees();
+
+ }catch(error){
+
+  console.log(error);
+
+  alert(
+
+   error.response?.data?.message ||
+
+   "Upload Failed"
+
+  );
+
+ }
+
+};
 
 
     const [showUserModal,
@@ -84,6 +152,7 @@ useState({
 
   role: "user",
 });
+
 const handleUserChange =
 (e) => {
 
@@ -528,7 +597,19 @@ storedUser
 
 : null;
 
+const [showPayslipModal,
+setShowPayslipModal] =
+useState(false);
 
+const [payslipData,
+setPayslipData] =
+useState({
+
+  month: "",
+
+  file: null,
+
+});
 const [fromDate,
 setFromDate] =
 useState("");
@@ -551,6 +632,13 @@ useState([]);
 
 const [showModal, setShowModal] =
 useState(false);
+const [showUpdatedPopup,
+setShowUpdatedPopup] =
+useState(false);
+
+const [popupType,
+setPopupType] =
+useState("today");
 
 const [showUpdateModal, setShowUpdateModal] =
 useState(false);
@@ -569,6 +657,45 @@ const [selectedUser,
 setSelectedUser] =
 useState("");
 
+
+const updatedTodayCustomers =
+customers.filter((customer) => {
+
+  if (!customer.lastModified)
+    return false;
+
+  const diffHours =
+    (Date.now() -
+      new Date(
+        customer.lastModified
+      )) /
+    (1000 * 60 * 60);
+
+  return diffHours <= 24;
+
+});
+
+const updatedToday =
+updatedTodayCustomers.length;
+const updatedWeekCustomers =
+customers.filter((customer) => {
+
+  if (!customer.lastModified)
+    return false;
+
+  const diffDays =
+    (Date.now() -
+      new Date(
+        customer.lastModified
+      )) /
+    (1000 * 60 * 60 * 24);
+
+  return diffDays <= 7;
+
+});
+
+const updatedWeek =
+updatedWeekCustomers.length;
 
 const [solutionFilter,
 setSolutionFilter] =
@@ -605,6 +732,26 @@ useEffect(() => {
   setCurrentPage(1);
 
 }, [searchTerm]);
+useEffect(() => {
+
+  const fullScreenPages = [
+
+    "customers",
+    "dashboard",
+
+    "users",
+    "employees",
+    "reminders"
+
+  ];
+
+  setSidebarOpen(
+    !fullScreenPages.includes(
+      activeMenu
+    )
+  );
+
+}, [activeMenu]);
 const [currentPage, setCurrentPage] =
 useState(1);
 const [selectedDate,
@@ -1802,14 +1949,19 @@ const performanceData = [
 
 
       {/* SIDEBAR */}
-
-      <div className="sidebar">
+<div
+  className={`sidebar ${
+    sidebarOpen
+      ? ""
+      : "sidebar-hidden"
+  }`}
+>
 
        <div className="logo">
 
  <img
 
-    src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1779705309/bling_tech_logo_white_lmsgoz.png"
+    src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1779687977/bling_tech_logo_h7rc1m.png"
 
     alt="logo"
 
@@ -2016,7 +2168,14 @@ const performanceData = [
 
       {/* MAIN */}
 
-      <div className="main-content">
+   <div
+  className={`main-content ${
+    !sidebarOpen
+      ? "main-expanded"
+      : ""
+  }`}
+>
+
 
 
         {/* ================= DASHBOARD ================= */}
@@ -2032,18 +2191,27 @@ const performanceData = [
               <div className="topbar">
 
                 <div>
+                  <div className="dash">
+                   <button
+      className="sidebar-toggle"
+      onClick={() =>
+        setSidebarOpen(prev => !prev)
+      }
+    >
+      ☰
+    </button>
 
-                  <h1>
+                  <h1 className="dh1">
                     CRM Analytics Dashboard
                   </h1>
 
-                  <p>
+                  <p className="p1">
                     Sales &
                     Customer Insights
                   </p>
    <div className="action-buttons">
           
-                  
+            </div>      
                   
     {
   role ===
@@ -2418,7 +2586,62 @@ clear-filter-btn
                   <FaUserCheck className="icon purple" />
 
                 </div>
+<div
+  className="stat-card clickable-card"
+  onClick={() => {
 
+    setPopupType("today");
+
+    setShowUpdatedPopup(true);
+
+  }}
+>
+
+  <div>
+
+    <h4>
+      Updated (24 Hrs)
+    </h4>
+
+    <h2>
+      {updatedToday}
+    </h2>
+
+  </div>
+
+  <FaHistory
+    className="icon red"
+  />
+
+</div>
+<div
+  className="stat-card clickable-card"
+  onClick={() => {
+
+    setPopupType("week");
+
+    setShowUpdatedPopup(true);
+
+  }}
+>
+
+  <div>
+
+    <h4>
+      Updated (7 Days)
+    </h4>
+
+    <h2>
+      {updatedWeek}
+    </h2>
+
+  </div>
+
+  <FaClock
+    className="icon blue"
+  />
+
+</div>
 
                 <div className="stat-card">
 
@@ -2653,19 +2876,38 @@ clear-filter-btn
 
       {/* HEADER */}
 
+     
+
       <div className="customer-topbar">
 
-        <div>
 
-          <h2 className="page-title">
-            Customer Management
-          </h2>
+  <div className="header-left">
 
-          <p className="page-subtitle">
-            Manage customer records
-          </p>
+    <button
+      className="sidebar-toggle"
+      onClick={() =>
+        setSidebarOpen(prev => !prev)
+      }
+    >
+      ☰
+    </button>
 
-        </div>
+    <div>
+
+      <h2 className="page-title">
+        Customer Management
+      </h2>
+
+      <p className="page-subtitle">
+        Manage customer records
+      </p>
+
+    </div>
+
+  </div>
+
+
+
         
 
         <div className="top-actions">
@@ -2713,33 +2955,7 @@ clear-filter-btn
       </div>
 <div className="customer-filters">
 
-  <div className="filter-item">
-
-    <label>
-      Solution
-    </label>
-
-    <select
-      value={solutionFilter}
-      onChange={(e) =>
-        setSolutionFilter(
-          e.target.value
-        )
-      }
-    >
-
-      <option value="">
-        All
-      </option>
-
-      <option>Anti-Counterfeiting</option>
-      <option>Customer Engagement</option>
-      <option>Retail Intelligence</option>
-      <option>Digital Warranty</option>
-
-    </select>
-
-  </div>
+  
 
 
   <div className="filter-item">
@@ -2888,7 +3104,7 @@ download-btn
 
               <th>Status</th>
                <th>Priority</th>
-              <th>Solution</th>
+          
               <th>Product</th>
 
              
@@ -2958,9 +3174,7 @@ download-btn
                       </span>
 
                     </td>
-                    <td>
-  {customer.solution || "-"}
-</td>
+          
 
 <td>
   {customer.product || "-"}
@@ -2981,62 +3195,50 @@ download-btn
 
                     <td>
 
-                      <div
-                        className="action-btns"
+                 <div
+  className="action-icons"
+  onClick={(e) =>
+    e.stopPropagation()
+  }
+>
 
-                        onClick={(e) =>
-                          e.stopPropagation()
-                        }
-                      >
+  {/* EDIT */}
 
-                        <button
+  <button
+    className="icon-btn edit-icon"
+    title="Edit Customer"
+    onClick={() =>
+      handleFullUpdate(customer)
+    }
+  >
+    <FaEdit />
+  </button>
 
-                          className="table-btn edit-btn"
+  {/* STATUS */}
 
-                          onClick={() =>
-                            handleFullUpdate(
-                              customer
-                            )
-                          }
-                        >
+  <button
+    className="icon-btn status-icon"
+    title="Update Status"
+    onClick={() =>
+      handleStatusUpdate(customer)
+    }
+  >
+    <FaSyncAlt />
+  </button>
 
-                          Edit
+  {/* DELETE */}
 
-                        </button>
+  <button
+    className="icon-btn delete-icon"
+    title="Delete Customer"
+    onClick={() =>
+      deleteCustomer(customer)
+    }
+  >
+    <FaTrash />
+  </button>
 
-
-                        <button
-
-                          className="table-btn status-btn"
-
-                          onClick={() =>
-                            handleStatusUpdate(
-                              customer
-                            )
-                          }
-                        >
-
-                          Status
-
-                        </button>
-
-
-                        <button
-
-                          className="table-btn delete-btn"
-
-                          onClick={() =>
-                            deleteCustomer(
-                              customer
-                            )
-                          }
-                        >
-
-                          Delete
-
-                        </button>
-
-                      </div>
+</div>
 
                     </td>
 
@@ -3134,13 +3336,22 @@ download-btn
 
       <div className="reminder-header">
 
-        <div>
+         <div className="header-left">
 
-          <h1>
+    <button
+      className="sidebar-toggle"
+      onClick={() =>
+        setSidebarOpen(prev => !prev)
+      }
+    >
+      ☰
+    </button>
+
+          <h1 className="rh1">
             Follow Up Reminders
           </h1>
 
-          <p>
+          <p className="rp1">
             Select a date to view follow-up customers
           </p>
 
@@ -3330,7 +3541,19 @@ download-btn
 
       <div className="employee-topbar">
 
-        <div>
+       <div className="header-left">
+
+    <button
+      className="sidebar-toggle"
+      onClick={() =>
+        setSidebarOpen(
+          prev => !prev
+        )
+      }
+    >
+      ☰
+    </button>
+    <div className="emp">
 
           <h1>
             Employee Management
@@ -3339,7 +3562,7 @@ download-btn
           <p>
             Manage employee records
           </p>
-
+</div>
         </div>
 
         <button
@@ -3522,6 +3745,35 @@ download-btn
 
 
                   {/* ACTIONS */}
+      <td>
+
+{
+role === "super_admin" && (
+
+<button
+
+ className="payslip-btn"
+
+ onClick={() => {
+
+  setSelectedEmployee(
+   employee
+  );
+
+  setShowPayslipModal(true);
+
+ }}
+
+>
+
+ Upload Payslip
+
+</button>
+
+)
+}
+
+</td>
 
                   <td>
 
@@ -3903,35 +4155,54 @@ download-btn
 
     <div className="employee-section">
 
-      <div className="employee-header">
+     <div className="employee-header">
 
-        <div>
+  <div className="header-left">
 
-          <h1>
-            User Management
-          </h1>
-          <button
+    <button
+      className="sidebar-toggle"
+      onClick={() =>
+        setSidebarOpen(
+          prev => !prev
+        )
+      }
+    >
+      ☰
+    </button>
 
-  className="add-btn"
+    <div>
 
-  onClick={() =>
-    setShowUserModal(true)
-  }
->
+      <h1>
+        User Management
+      </h1>
 
-  <FaPlus />
+      <p>
+        Manage users and roles
+      </p>
 
-  Add User
+    </div>
 
-</button>
+  </div>
 
-          <p>
-            Manage users and roles
-          </p>
 
-        </div>
+  <div className="header-right">
 
-      </div>
+    <button
+      className="add-btn"
+      onClick={() =>
+        setShowUserModal(true)
+      }
+    >
+
+      <FaPlus />
+
+      Add User
+
+    </button>
+
+  </div>
+
+</div>
 
 
       <div className="employee-table-wrapper">
@@ -4317,6 +4588,7 @@ Leave empty if no change
     </div>
   )
 }
+
 {
   showUserModal && (
 
@@ -4655,24 +4927,24 @@ Leave empty if no change
 
             </div>
 
-
-            {/* EMAIL */}
+  {/* COMPANY */}
 
             <div className="input-group">
 
               <label>
-                Email
+                Company
               </label>
 
               <input
-                type="email"
-                name="email"
-                placeholder="Enter email"
-                value={formData.email}
+                type="text"
+                name="company"
+                placeholder="Enter company"
+                value={formData.company}
                 onChange={handleChange}
               />
 
             </div>
+          
 
 
             {/* PHONE */}
@@ -4692,25 +4964,26 @@ Leave empty if no change
               />
 
             </div>
-
-
-            {/* COMPANY */}
+              {/* EMAIL */}
 
             <div className="input-group">
 
               <label>
-                Company
+                Email
               </label>
 
               <input
-                type="text"
-                name="company"
-                placeholder="Enter company"
-                value={formData.company}
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
                 onChange={handleChange}
               />
 
-            </div>
+            </div> 
+
+
+          
 
 
             {/* LEAD STAGE */}
@@ -4826,51 +5099,6 @@ Leave empty if no change
               />
 
             </div>
-{/* SOLUTION */}
-<div className="form-group">
-
-  <label>
-    Solution
-  </label>
-
-  <select
-
-    name="solution"
-
-    value={formData.solution}
-
-    onChange={handleChange}
-  >
-
-    <option value="">
-      Select Solution
-    </option>
-
-    <option>
-      Anti-Counterfeiting
-    </option>
-
-    <option>
-      Track & Trace
-    </option>
-
-    <option>
-      Customer Engagement
-    </option>
-
-    <option>
-      Retail Intelligence
-    </option>
-
-    <option>
-      Digital Warranty
-    </option>
-
-  </select>
-
-</div>
-
-
 {/* PRODUCT */}
 
 <div className="form-group">
@@ -4891,17 +5119,18 @@ Leave empty if no change
     <option value="">
       Select Product
     </option>
-
+ <option>
+      Bling Rewards
+    </option>
+     <option>
+      Digital Warranty
+    </option>
     <option>
-      Dealer Order Management
+      Track and Trace
     </option>
 
     <option>
-      AI Chatbot
-    </option>
-
-    <option>
-      RFID Inventory management
+     Dealer Module
     </option>
 
     <option>
@@ -4968,6 +5197,107 @@ Leave empty if no change
 
     </div>
   )
+}
+{
+showPayslipModal && (
+
+<div className="modal-overlay">
+
+ <div className="modal">
+
+  <div className="modal-header">
+
+   <h2>
+    Upload Payslip
+   </h2>
+
+   <span
+
+    className="close-icon"
+
+    onClick={()=>
+     setShowPayslipModal(false)
+    }
+
+   >
+
+    ✕
+
+   </span>
+
+  </div>
+
+  <div className="input-group">
+
+   <label>
+    Month
+   </label>
+
+   <input
+
+    type="month"
+
+    onChange={(e)=>
+
+     setPayslipData({
+
+      ...payslipData,
+
+      month:e.target.value
+
+     })
+
+    }
+
+   />
+
+  </div>
+
+  <div className="input-group">
+
+   <label>
+    PDF File
+   </label>
+
+   <input
+
+    type="file"
+
+    accept=".pdf"
+
+    onChange={(e)=>
+
+     setPayslipData({
+
+      ...payslipData,
+
+      file:e.target.files[0]
+
+     })
+
+    }
+
+   />
+
+  </div>
+
+  <button
+
+   className="submit-btn"
+
+   onClick={uploadPayslip}
+
+  >
+
+   Upload Payslip
+
+  </button>
+
+ </div>
+
+</div>
+
+)
 }
 {
   showEmployeeUpdate && (

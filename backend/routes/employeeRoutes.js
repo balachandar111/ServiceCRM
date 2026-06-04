@@ -9,6 +9,16 @@ require("../config/multer");
 
 const employeeAuth =
 require("../middlewares/employeeAuth");
+const authMiddleware =
+require("../middlewares/authMiddleware");
+
+const superAdmin =
+require("../middlewares/superAdmin");
+
+
+const Employee =
+require("../models/employeeModel");
+
 
 const {
 
@@ -24,6 +34,8 @@ const {
   deleteEmployee,
 
   updateEmployeeEmail,
+  uploadPayslip,
+  getEmployeePayslips,
 
   updateProfileImage,
 
@@ -35,7 +47,60 @@ const {
 
 
 // ================= REGISTER =================
+router.put(
+  "/upload-payslip/:id",
+  authMiddleware,
+  superAdmin,
+  upload.single("payslip"),
+  uploadPayslip
+);
+router.get(
+ "/test-payslip",
+ (req,res)=>{
+  res.send("Payslip route working");
+ }
+);
+router.get(
 
+ "/my-payslips",
+
+ employeeAuth,
+
+ async (req,res) => {
+
+  try{
+
+   const employee =
+   await Employee.findById(
+    req.employee.id
+   );
+
+   res.json({
+
+    success:true,
+
+    payslips:
+    employee.payslips || []
+
+   });
+
+  }
+
+  catch(error){
+
+   res.status(500).json({
+
+    success:false,
+
+    message:error.message
+
+   });
+
+  }
+
+ }
+
+);
 router.post(
 
   "/register",

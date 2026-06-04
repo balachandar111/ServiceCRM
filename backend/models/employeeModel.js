@@ -40,6 +40,28 @@ documents: [
     type: String,
   },
 ],
+payslips: [
+
+ {
+  month:String,
+
+  year:Number,
+
+  pdfUrl:String,
+
+  uploadedBy:{
+   type:
+   mongoose.Schema.Types.ObjectId,
+   ref:"UserDetails"
+  },
+
+  uploadedAt:{
+   type:Date,
+   default:Date.now
+  }
+ }
+
+],
 
 },
 {
