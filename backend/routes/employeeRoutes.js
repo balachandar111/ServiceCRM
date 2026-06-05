@@ -48,7 +48,13 @@ const {
 
 // ================= REGISTER =================
 router.put(
-  "/upload-payslip/:id",
+  "/:id",
+
+  (req,res,next)=>{
+    console.log("PAYSLIP ROUTE HIT");
+    next();
+  },
+
   authMiddleware,
   superAdmin,
   upload.single("payslip"),
