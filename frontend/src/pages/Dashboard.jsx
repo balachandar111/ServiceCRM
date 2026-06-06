@@ -102,7 +102,7 @@ async ()=>{
 
   );
 
-  await API.post(
+  await API.put(
 
    `/employees/upload-payslip/${selectedEmployee._id}`,
 
