@@ -102,7 +102,7 @@ async ()=>{
 
   );
 
-  await API.put(
+  await API.post(
 
    `/employees/upload-payslip/${selectedEmployee._id}`,
 
@@ -3755,6 +3755,7 @@ download-btn
 
 
                   {/* ACTIONS */}
+                  <td>
        {
 role === "super_admin" && (
 
@@ -3779,7 +3780,7 @@ role === "super_admin" && (
 </button>
 
 )
-}
+}</td>
 
                   <td>
 
