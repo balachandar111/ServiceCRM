@@ -102,14 +102,24 @@ async ()=>{
 
   );
 
- console.log(
-  `/employees/upload-payslip/${selectedEmployee._id}`
-);
+  await API.put(
 
-await API.put(
-  `/employees/upload-payslip/${selectedEmployee._id}`,
-  formData
-);
+   `/employees/upload-payslip/${selectedEmployee._id}`,
+
+   formData,
+
+   {
+
+    headers:{
+
+     "Content-Type":
+     "multipart/form-data"
+
+    }
+
+   }
+
+  );
 
   alert(
    "Payslip Uploaded Successfully"
@@ -605,9 +615,9 @@ const [payslipData,
 setPayslipData] =
 useState({
 
-  month: "",
+ month:"",
 
-  file: null,
+ file:null
 
 });
 const [fromDate,
@@ -3745,16 +3755,14 @@ download-btn
 
 
                   {/* ACTIONS */}
-      <td>
-
-{
+       {
 role === "super_admin" && (
 
 <button
 
  className="payslip-btn"
 
- onClick={() => {
+ onClick={()=>{
 
   setSelectedEmployee(
    employee
@@ -3772,8 +3780,6 @@ role === "super_admin" && (
 
 )
 }
-
-</td>
 
                   <td>
 
@@ -5205,91 +5211,55 @@ showPayslipModal && (
 
  <div className="modal">
 
-  <div className="modal-header">
+  <h2>
+   Upload Payslip
+  </h2>
 
-   <h2>
-    Upload Payslip
-   </h2>
+  <input
 
-   <span
+   type="month"
 
-    className="close-icon"
+   onChange={(e)=>
 
-    onClick={()=>
-     setShowPayslipModal(false)
-    }
+   setPayslipData({
 
-   >
+    ...payslipData,
 
-    ✕
+    month:
+    e.target.value
 
-   </span>
+   })
 
-  </div>
+   }
+  />
 
-  <div className="input-group">
+  <input
 
-   <label>
-    Month
-   </label>
+   type="file"
 
-   <input
+   accept=".pdf"
 
-    type="month"
+   onChange={(e)=>
 
-    onChange={(e)=>
+   setPayslipData({
 
-     setPayslipData({
+    ...payslipData,
 
-      ...payslipData,
+    file:
+    e.target.files[0]
 
-      month:e.target.value
+   })
 
-     })
-
-    }
-
-   />
-
-  </div>
-
-  <div className="input-group">
-
-   <label>
-    PDF File
-   </label>
-
-   <input
-
-    type="file"
-
-    accept=".pdf"
-
-    onChange={(e)=>
-
-     setPayslipData({
-
-      ...payslipData,
-
-      file:e.target.files[0]
-
-     })
-
-    }
-
-   />
-
-  </div>
+   }
+  />
 
   <button
-
-   className="submit-btn"
-
-   onClick={uploadPayslip}
-
+   onClick={
+    uploadPayslip
+   }
   >
 
-   Upload Payslip
+   Upload
 
   </button>
 
@@ -5297,8 +5267,7 @@ showPayslipModal && (
 
 </div>
 
-)
-}
+)}
 {
   showEmployeeUpdate && (
 

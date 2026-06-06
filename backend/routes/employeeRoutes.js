@@ -47,10 +47,10 @@ const {
 
 
 // ================= REGISTER =================
-router.put(
+router.post(
   "/upload-payslip/:id",
   authMiddleware,
-  employeeAuth,
+  superAdmin,
   upload.single("payslip"),
   uploadPayslip
 );
