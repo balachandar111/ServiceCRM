@@ -1,120 +1,31 @@
 require("dotenv").config();
 
-const express =
-require("express");
-
-const cors =
-require("cors");
-
-const mongoose =
-require("mongoose");
+const app = require("./app");
 
 const connectDB =
 require("./config/db");
+const cors = require("cors");
 
-
-// ================= EXPRESS =================
-
-const app = express();
-
-
-// ================= MIDDLEWARE =================
-
+connectDB();
 app.use(cors({
   origin: "*",
   credentials: true,
 }));
 
-app.use(express.json());
-
-app.use(express.urlencoded({
-  extended: true,
-}));
-
-
-// ================= DATABASE =================
-
-connectDB();
-
-
-// ================= ROUTES =================
-
-const authRoutes =
-require("./routes/authRoutes");
-
-const userRoutes =
-require("./routes/userRoutes");
-
-const customerRoutes =
-require("./routes/customerRoutes");
-
-const employeeRoutes =
-require("./routes/employeeRoutes");
-
-
-// AUTH
-
-app.use(
-  "/api/auth",
-  authRoutes
-);
-
-
-// USERS
-
-app.use(
-  "/api/users",
-  userRoutes
-);
-
-
-// CUSTOMERS
-
-app.use(
-  "/api/customers",
-  customerRoutes
-);
-
-
-// EMPLOYEES
-
-app.use(
-  "/api/employees",
-  employeeRoutes
-);
-
-
-// UPLOADS
-
-app.use(
-  "/uploads",
-  express.static("uploads")
-);
-
-
-// TEST ROUTE
-
-app.get("/", (req, res) => {
-
-  res.send(
-    "Backend Running"
-  );
-
-});
-
-
-// ================= PORT =================
-
 const PORT =
 process.env.PORT || 5000;
-
-
-// ================= SERVER =================
 
 app.listen(PORT, () => {
 
   console.log(
-    `Server running on ${PORT}`
+    `Server Running On Port ${PORT}`
   );
 
 });
+const userRoutes =
+require("./routes/userRoutes");
+
+app.use(
+ "/api/users",
+ userRoutes
+);

@@ -1,32 +1,42 @@
-const express =
-require("express");
-
-const cors =
-require("cors");
+const express = require("express");
+const cors = require("cors");
 
 require("dotenv").config();
 
 const app = express();
 
+/* =========================
+   CORS
+========================= */
 
-// ================= CORS =================
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: "*",
-  credentials: true,
-}));
-
-
-// ================= BODY =================
+/* =========================
+   BODY PARSER
+========================= */
 
 app.use(express.json());
 
-app.use(express.urlencoded({
-  extended: true,
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+/* =========================
+   STATIC FILES
+========================= */
 
 
-// ================= ROUTES =================
+
+/* =========================
+   ROUTES
+========================= */
 
 app.use(
   "/api/auth",
@@ -34,8 +44,13 @@ app.use(
 );
 
 app.use(
-  "/api/customers",
-  require("./routes/customerRoutes")
+  "/api/organizations",
+  require("./routes/organizationRoutes")
+);
+
+app.use(
+  "/api/admin",
+  require("./routes/adminRoutes")
 );
 
 app.use(
@@ -43,19 +58,31 @@ app.use(
   require("./routes/userRoutes")
 );
 
-app.use(
-  "/api/employees",
-  require("./routes/employeeRoutes")
-);
 
 
-// ================= TEST =================
+/* =========================
+   TEST API
+========================= */
 
 app.get("/", (req, res) => {
 
-  res.send(
-    "Backend Running"
-  );
+  res.status(200).json({
+    success: true,
+    message: "CRM Backend Running Successfully 🚀"
+  });
+
+});
+
+/* =========================
+   404
+========================= */
+
+app.use((req, res) => {
+
+  res.status(404).json({
+    success: false,
+    message: "Route Not Found"
+  });
 
 });
 

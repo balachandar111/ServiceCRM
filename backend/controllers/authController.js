@@ -1,296 +1,341 @@
-// ==================================
-// 📁 backend/controllers/authController.js
-// ==================================
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-let User =
-require("../models/userModel");
-
-const bcrypt =
-require("bcrypt");
-
-const generateToken =
-require("../utils/jwt");
+const SuperAdmin = require("../models/SuperAdmin");
 
 
-// OPTIONAL MODEL INJECTION
-const setUserModel = (model) => {
-  User = model;
-};
+const User =
+require("../models/User");
+/*
+|--------------------------------------------------------------------------
+| Register Super Admin
+|--------------------------------------------------------------------------
+*/
 
-
-// ================= REGISTER =================
-
-const register =
-async (req, res) => {
+exports.registerSuperAdmin = async (req, res) => {
 
   try {
 
     const {
-  name,
-  email,
-  password,
-  role,
-} = req.body;
+      name,
+      username,
+      password,
+      profile
+    } = req.body;
 
-    const userExists =
-      await User.findOne({ email });
+    const existingUser =
+      await SuperAdmin.findOne({
+        username
+      });
 
-    if (userExists) {
+    if (existingUser) {
 
       return res.status(400).json({
-        message:
-        "User already exists",
+        success: false,
+        message: "Username already exists"
       });
+
     }
 
-   const user =
-  await User.create({
-    name,
-    email,
-    password,
-    role,
-  });
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    const superAdmin =
+      await SuperAdmin.create({
+
+        name,
+
+        username,
+
+        password: hashedPassword,
+
+        profile
+
+      });
 
     res.status(201).json({
 
       success: true,
 
-      token:
-        generateToken(user),
+      message:
+      "Super Admin Created",
 
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      data: superAdmin
+
     });
 
   } catch (error) {
 
     res.status(500).json({
-      message: error.message,
+      success: false,
+      message: error.message
     });
+
   }
+
 };
 
 
-// ================= LOGIN =================
-const login = async (req, res) => {
+/*
+|--------------------------------------------------------------------------
+| Login Super Admin
+|--------------------------------------------------------------------------
+*/
+
+exports.loginSuperAdmin = async (req, res) => {
 
   try {
 
-    const { email, password } = req.body;
+    const {
+      username,
+      password
+    } = req.body;
 
-
-    // ================= CHECK USER =================
-
-    const user =
-      await User.findOne({ email });
-
-
-    if (user) {
-
-      const isMatch =
-        await user.comparePassword(
-          password
-        );
-
-
-      if (!isMatch) {
-
-        return res.status(400).json({
-          message: "Invalid password",
-        });
-      }
-
-
-      const token =
-        generateToken(user);
-
-
-      return res.json({
-
-        success: true,
-
-        token,
-
-        role: user.role,
-
-        user,
+    const admin =
+      await SuperAdmin.findOne({
+        username
       });
+
+    if (!admin) {
+
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+
     }
 
-    // ================= CHECK EMPLOYEE =================
+    if (admin.status === "INACTIVE") {
 
-    const employee =
-      await Employee.findOne({ email });
-
-
-    if (!employee) {
-
-      return res.status(400).json({
-        message: "Account not found",
+      return res.status(403).json({
+        success: false,
+        message: "Account Deactivated"
       });
-    }
 
+    }
 
     const isMatch =
-      await employee.comparePassword(
-        password
+      await bcrypt.compare(
+        password,
+        admin.password
       );
-
 
     if (!isMatch) {
 
       return res.status(400).json({
-        message: "Invalid password",
+        success: false,
+        message: "Invalid Password"
       });
+
     }
 
+    const token = jwt.sign(
+      {
+        id: admin._id,
+        role: "SUPER_ADMIN"
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d"
+      }
+    );
 
-    const token =
-      generateToken(employee);
-
-
-    res.json({
+    res.status(200).json({
 
       success: true,
 
       token,
 
-      role: "employee",
+      user: {
+        id: admin._id,
+        name: admin.name,
+        username: admin.username,
+        role: "SUPER_ADMIN"
+      }
 
-      user: employee,
     });
 
   } catch (error) {
 
     res.status(500).json({
-      message: error.message,
+      success: false,
+      message: error.message
     });
+
   }
+
 };
 
-// ================= GET PROFILE =================
 
-const getMe =
-async (req, res) => {
+exports.login = async (
+ req,
+ res
+) => {
 
-  try {
+ try {
 
-    const user =
-      await User.findById(req.user.id)
-      .select("-password");
+  const {
+   username,
+   password
+  } = req.body;
 
-    if (!user) {
+  /*
+  ===========================
+  SUPER ADMIN LOGIN
+  ===========================
+  */
 
-      return res.status(404).json({
-        message:
-        "User not found",
-      });
+  const superAdmin =
+  await SuperAdmin.findOne({
+   username
+  });
+
+  if (superAdmin) {
+
+   const match =
+   await bcrypt.compare(
+    password,
+    superAdmin.password
+   );
+
+   if (!match) {
+
+    return res.status(400).json({
+     success:false,
+     message:"Invalid Password"
+    });
+
+   }
+
+   const token =
+   jwt.sign(
+    {
+     id:superAdmin._id,
+     role:"SUPER_ADMIN"
+    },
+    process.env.JWT_SECRET,
+    {
+     expiresIn:"7d"
+    }
+   );
+
+   return res.status(200).json({
+
+    success:true,
+
+    token,
+
+    role:"SUPER_ADMIN",
+
+    user:{
+     id:superAdmin._id,
+     name:superAdmin.name,
+     username:superAdmin.username
     }
 
-    res.json({
-      success: true,
-      user,
-    });
+   });
 
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message,
-    });
   }
-};
 
+  /*
+  ===========================
+  ADMIN / USER LOGIN
+  ===========================
+  */
 
-// ================= UPDATE USER =================
+  const user =
+  await User.findOne({
+   username
+  });
 
-const updateUser =
-async (req, res) => {
+  if (!user) {
 
-  try {
+   return res.status(404).json({
+    success:false,
+    message:"User Not Found"
+   });
 
-    const userId =
-      req.user.id;
-
-    const {
-      name,
-      email,
-      password,
-    } = req.body;
-
-    const updateData = {};
-
-    if (name)
-      updateData.name = name;
-
-    if (email)
-      updateData.email = email;
-
-    // HASH NEW PASSWORD
-    if (password) {
-
-      const salt =
-        await bcrypt.genSalt(10);
-
-      updateData.password =
-        await bcrypt.hash(
-          password,
-          salt
-        );
-    }
-
-    const updatedUser =
-      await User.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true }
-      ).select("-password");
-
-    res.json({
-      success: true,
-      user: updatedUser,
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message,
-    });
   }
-};
 
+  if (
+   user.loginStatus ===
+   "INACTIVE"
+  ) {
 
-// ================= LOGOUT =================
+   return res.status(403).json({
 
-const logout =
-async (req, res) => {
+    success:false,
 
-  try {
+    message:
+    "Account Disabled"
 
-    res.json({
-      success: true,
-      message:
-      "Logged out successfully",
-    });
+   });
 
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message,
-    });
   }
-};
-const Employee = require(
-  "../models/employeeModel"
-);
 
-module.exports = {
-  register,
-  login,
-  getMe,
-  updateUser,
-  logout,
-  setUserModel,
+  const match =
+  await bcrypt.compare(
+   password,
+   user.password
+  );
+
+  if (!match) {
+
+   return res.status(400).json({
+    success:false,
+    message:"Invalid Password"
+   });
+
+  }
+
+  const token =
+  jwt.sign(
+   {
+    id:user._id,
+    role:user.role
+   },
+   process.env.JWT_SECRET,
+   {
+    expiresIn:"7d"
+   }
+  );
+
+  res.status(200).json({
+
+   success:true,
+
+   token,
+
+   role:user.role,
+
+   user:{
+
+    id:user._id,
+
+    name:user.name,
+
+    username:user.username,
+
+    role:user.role,
+
+    organization:
+    user.organization
+
+   }
+
+  });
+
+ }
+ catch(error){
+
+  res.status(500).json({
+
+   success:false,
+
+   message:error.message
+
+  });
+
+ }
+
 };

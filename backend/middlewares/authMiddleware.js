@@ -1,67 +1,51 @@
-const jwt = require("jsonwebtoken");
+const jwt =
+require("jsonwebtoken");
 
-const User =
-require("../models/userModel");
+exports.protect =
+(req,res,next)=>{
 
+ try{
 
-const protect =
-async (req, res, next) => {
+  const token =
+  req.headers.authorization
+  ?.split(" ")[1];
 
-  let token;
+  if(!token){
 
-  // CHECK TOKEN
-  if (
+   return res.status(401).json({
 
-    req.headers.authorization &&
+    success:false,
 
-    req.headers.authorization.startsWith(
-      "Bearer"
-    )
+    message:"No Token"
 
-  ) {
+   });
 
-    try {
-
-      token =
-        req.headers.authorization
-        .split(" ")[1];
-
-      // VERIFY TOKEN
-      const decoded =
-        jwt.verify(
-          token,
-          process.env.JWT_SECRET
-        );
-
-      // GET USER
-      req.user =
-        await User.findById(
-          decoded.id
-        ).select("-password");
-
-      next();
-
-    } catch (error) {
-
-      return res.status(401).json({
-
-        message:
-        "Not authorized, token failed",
-
-      });
-    }
   }
 
-  // NO TOKEN
-  if (!token) {
+  const decoded =
+  jwt.verify(
 
-    return res.status(401).json({
+   token,
 
-      message:
-      "No token provided",
+   process.env.JWT_SECRET
 
-    });
-  }
+  );
+
+  req.user = decoded;
+
+  next();
+
+ }
+ catch(error){
+
+  return res.status(401).json({
+
+   success:false,
+
+   message:"Invalid Token"
+
+  });
+
+ }
+
 };
-
-module.exports = protect;
