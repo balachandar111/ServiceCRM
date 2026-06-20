@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const API_URL =
+import.meta.env.VITE_API_URL;
 
 import {
  FaUser,
@@ -46,32 +48,17 @@ const Login = () => {
 
    let url="";
 
-   if(
-    formData.role ===
-    "SUPER_ADMIN"
-   ){
+  if(formData.role==="SUPER_ADMIN"){
+ url = `${API_URL}/auth/login`;
+}
 
-    url=
-    "http://localhost:5000/api/auth/login";
+   else if(formData.role==="ADMIN"){
+ url = `${API_URL}/admin/login`;
+}
 
-   }
-
-   else if(
-    formData.role ===
-    "ADMIN"
-   ){
-
-    url=
-    "http://localhost:5000/api/admin/login";
-
-   }
-
-   else{
-
-    url=
-    "http://localhost:5000/api/users/login";
-
-   }
+  else{
+ url = `${API_URL}/users/login`;
+}
 
    const { data } =
    await axios.post(
