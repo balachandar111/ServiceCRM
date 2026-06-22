@@ -412,21 +412,7 @@ remark: "",
    placeholder="Assigned To"
   />
 
-  <input
-   type="text"
-   name="solution"
-   value={form.solution || ""}
-   onChange={handleChange}
-   placeholder="Solution"
-  />
-
-  <input
-   type="text"
-   name="product"
-   value={form.product || ""}
-   onChange={handleChange}
-   placeholder="Product"
-  />
+ 
 
   <input
    type="text"
