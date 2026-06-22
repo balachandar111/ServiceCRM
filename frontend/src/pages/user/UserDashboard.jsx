@@ -52,137 +52,107 @@ const UserDashboard = () => {
 
  }
 
- return (
+return (
 
-  <div className="user-page">
+<div className="user-page">
 
-   <div className="page-header">
+  <div className="page-header">
 
-    <h2>
-     My Lead Details
-    </h2>
-
-   
-
-   </div>
-
-   <div className="lead-card">
-
-    {/* Left Side */}
-
-    <div className="lead-column">
-
-     <h3>
-      Customer Information
-     </h3>
-
-     <div className="info-row">
-      <span>Name</span>
-      <strong>{user.name}</strong>
-     </div>
-
-     <div className="info-row">
-      <span>Company</span>
-      <strong>{user.company}</strong>
-     </div>
-
-     <div className="info-row">
-      <span>Phone</span>
-      <strong>{user.phoneNumber}</strong>
-     </div>
-
-     <div className="info-row">
-      <span>Email</span>
-      <strong>{user.email}</strong>
-     </div>
-
-     <div className="info-row">
-      <span>Customer Level</span>
-      <strong>
-       {user.customerLevel || "-"}
-      </strong>
-     </div>
-
+    <div>
+      <h2>My Lead Details</h2>
+      <p>Customer & Lead Information</p>
     </div>
 
-    {/* Right Side */}
-
-    <div className="lead-column">
-
-     <h3>
-      Lead Information
-     </h3>
-
-     <div className="info-row">
-      <span>Status</span>
-      <strong>
-       {user.status || "-"}
-      </strong>
-     </div>
-
-     <div className="info-row">
-      <span>Call Type</span>
-      <strong>
-       {user.callType || "-"}
-      </strong>
-     </div>
-
-     <div className="info-row">
-      <span>Service</span>
-      <strong>
-       {user.service || "-"}
-      </strong>
-     </div>
-
-     <div className="info-row">
-      <span>Lead Stage</span>
-      <strong>
-       {user.leadStage || "-"}
-      </strong>
-     </div>
-
-     <div className="info-row">
-      <span>Priority</span>
-      <strong>
-       {user.priority || "-"}
-      </strong>
-     </div>
-
-    </div>
-     <button
-     className="edit-btn"
-     onClick={() =>
-      setShowEdit(true)
-     }
-    >
-     Update Status
-    </button>
-
-   </div>
-
-   {
-    showEdit && (
-
-     <UserStatusModal
-
-      user={user}
-
-      refresh={
-       fetchProfile
-      }
-
-      closeModal={() =>
-       setShowEdit(false)
-      }
-
-     />
-
-    )
-   }
+  
 
   </div>
 
- );
+  <div className="lead-card">
+
+    <div className="lead-column">
+
+      <h3>Customer Information</h3>
+
+      <div className="info-row">
+        <span>Name</span>
+        <strong>{user.name}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Company</span>
+        <strong>{user.company}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Phone Number</span>
+        <strong>{user.phoneNumber}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Email</span>
+        <strong>{user.email}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Customer Level</span>
+        <strong>{user.customerLevel || "-"}</strong>
+      </div>
+
+    </div>
+
+    <div className="lead-column">
+
+      <h3>Lead Information</h3>
+
+      <div className="info-row">
+        <span>Status</span>
+        <strong>{user.status || "-"}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Call Type</span>
+        <strong>{user.callType || "-"}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Service</span>
+        <strong>{user.service || "-"}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Lead Stage</span>
+        <strong>{user.leadStage || "-"}</strong>
+      </div>
+
+      <div className="info-row">
+        <span>Priority</span>
+        <strong>{user.priority || "-"}</strong>
+      </div>
+
+    </div>
+      <button
+      className="edit-btn"
+      onClick={() => setShowEdit(true)}
+    >
+      Update Status
+    </button>
+
+  </div>
+
+  {showEdit && (
+
+    <UserStatusModal
+      user={user}
+      refresh={fetchProfile}
+      closeModal={() => setShowEdit(false)}
+    />
+
+  )}
+  
+
+</div>
+
+);
 
 };
 
