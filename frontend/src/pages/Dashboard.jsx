@@ -10,7 +10,8 @@ import {
   FaUsers,
   FaClipboardList,
   FaSignOutAlt,
-  FaUserCircle
+  FaUserCircle,
+   FaChartLine
 } from "react-icons/fa";
 
 import OrganizationList from "./superadmin/OrganizationList";
@@ -25,16 +26,26 @@ from "./admin/AdminDashboard";
 
 import SuperAdminDashboard
 from "./superadmin/SuperAdminDashboard";
+import SmartCalculator
+from "./user/SmartCalculator";
+
+import LeadManagement
+from "./admin/LeadManagement";
 
 const Dashboard = () => {
 
-  const [activeMenu, setActiveMenu] =
-    useState("dashboard");
+ 
+  const role =
+    localStorage.getItem("role");
+    const [activeMenu, setActiveMenu] =
+  useState(
+    role === "USER"
+      ? "myleads"
+      : "dashboard"
+  );
 
   const navigate = useNavigate();
 
-  const role =
-    localStorage.getItem("role");
 
   const user =
     JSON.parse(
@@ -84,7 +95,7 @@ const Dashboard = () => {
               color: "#2563eb"
             }}
           >
-            CRM
+            Express PC
           </div>
 
           <ul
@@ -95,18 +106,17 @@ const Dashboard = () => {
             }}
           >
 
-            <li
-              onClick={() => setActiveMenu("dashboard")}
-  className={`menu-item ${
-    activeMenu === "dashboard" ? "active-menu" : ""
-  }`}
-            >
-
-              <FaTachometerAlt />
-
-              Dashboard
-
-            </li>
+           {(role === "SUPER_ADMIN" || role === "ADMIN") && (
+  <li
+    onClick={() => setActiveMenu("dashboard")}
+    className={`menu-item ${
+      activeMenu === "dashboard" ? "active-menu" : ""
+    }`}
+  >
+    <FaTachometerAlt />
+    Dashboard
+  </li>
+)}
 
             {
               role ===
@@ -158,7 +168,7 @@ const Dashboard = () => {
   Users
 </li>
 
-                 <li
+                 {/* <li
   onClick={() => setActiveMenu("leads")}
   className={`menu-item ${
     activeMenu === "leads" ? "active-menu" : ""
@@ -166,26 +176,39 @@ const Dashboard = () => {
 >
   <FaClipboardList />
   Leads
-</li>
+</li> */}
                 </>
               )
             }
             
 
-            {
-              role ===
-              "USER" && (
-               <li
-  onClick={() => setActiveMenu("myleads")}
-  className={`menu-item ${
-    activeMenu === "myleads" ? "active-menu" : ""
-  }`}
->
-  <FaClipboardList />
-  My Leads
-</li>
-              )
-            }
+          {
+  role === "USER" && (
+    <>
+      <li
+        onClick={() => setActiveMenu("myleads")}
+         className={`menu-item ${
+      activeMenu === "myleads" ? "active-menu" : ""
+    }`}
+      >
+        <FaClipboardList />
+        My Leads
+      </li>
+
+      <li
+        onClick={() => setActiveMenu("smartcalculator")}
+        className={`menu-item ${
+          activeMenu === "smartcalculator"
+            ? "active-menu"
+            : ""
+        }`}
+      >
+        <FaChartLine />
+        Smart Calculator
+      </li>
+    </>
+  )
+}
 
           <li
   onClick={() => setActiveMenu("profile")}
@@ -243,22 +266,10 @@ const Dashboard = () => {
           <UserList />
         }
 
-        {
-          activeMenu ===
-          "leads" && (
-
-            <div
-              className="card"
-            >
-
-              <h2>
-                Lead Management
-              </h2>
-
-            </div>
-
-          )
-        }
+      {
+ activeMenu === "leads" &&
+ <LeadManagement />
+}
 {
  activeMenu ===
  "myleads" &&
@@ -320,6 +331,10 @@ const Dashboard = () => {
  activeMenu === "dashboard" &&
 
  <SuperAdminDashboard />
+}
+{
+  activeMenu === "smartcalculator" &&
+  <SmartCalculator />
 }
       </div>
 

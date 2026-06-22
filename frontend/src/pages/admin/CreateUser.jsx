@@ -135,52 +135,63 @@ remark:"",
 
     <div className="form-grid">
 
-      <input
-        name="name"
-        value={form.name}
-        onChange={handleChange}
-        placeholder="Lead Name"
-        required
-      />
+      <div className="form-group">
+  <label>Lead Name</label>
+  <input
+    name="name"
+    value={form.name}
+    onChange={handleChange}
+    required
+  />
+</div>
 
-      <input
-        name="company"
-        value={form.company}
-        onChange={handleChange}
-        placeholder="Company"
-      />
+<div className="form-group">
+  <label>Company</label>
+  <input
+    name="company"
+    value={form.company}
+    onChange={handleChange}
+  />
+</div>
 
-      <input
-        name="phoneNumber"
-        value={form.phoneNumber}
-        onChange={handleChange}
-        placeholder="Phone Number"
-      />
+<div className="form-group">
+  <label>Phone Number</label>
+  <input
+    name="phoneNumber"
+    value={form.phoneNumber}
+    onChange={handleChange}
+  />
+</div>
 
-      <input
-        name="email"
-        value={form.email}
-        onChange={handleChange}
-        placeholder="Email"
-      />
+<div className="form-group">
+  <label>Email</label>
+  <input
+    name="email"
+    value={form.email}
+    onChange={handleChange}
+  />
+</div>
 
-      <input
-        name="username"
-        value={form.username}
-        onChange={handleChange}
-        placeholder="Username"
-        required
-      />
+<div className="form-group">
+  <label>Username</label>
+  <input
+    name="username"
+    value={form.username}
+    onChange={handleChange}
+    required
+  />
+</div>
 
-      <input
-        type="password"
-        name="password"
-        value={form.password}
-        onChange={handleChange}
-        placeholder="Password"
-        required
-      />
-
+<div className="form-group">
+  <label>Password</label>
+  <input
+    type="password"
+    name="password"
+    value={form.password}
+    onChange={handleChange}
+    required
+  />
+</div>
     </div>
 
   </div>
@@ -190,10 +201,12 @@ remark:"",
 
  <div className="form-grid">
 
+<div className="form-group">
+  <label>Lead Stage</label>
   <select
-   name="leadStage"
-   value={form.leadStage}
-   onChange={handleChange}
+    name="leadStage"
+    value={form.leadStage}
+    onChange={handleChange}
   >
 
    <option value="Awareness">
@@ -213,11 +226,14 @@ remark:"",
    </option>
 
   </select>
+  </div>
 
+  <div className="form-group">
+  <label>Priority</label>
   <select
-   name="priority"
-   value={form.priority}
-   onChange={handleChange}
+    name="priority"
+    value={form.priority}
+    onChange={handleChange}
   >
 
    <option value="Low">
@@ -233,11 +249,14 @@ remark:"",
    </option>
 
   </select>
+  </div>
 
+ <div className="form-group">
+  <label>Lead Source</label>
   <select
-   name="source"
-   value={form.source}
-   onChange={handleChange}
+    name="source"
+    value={form.source}
+    onChange={handleChange}
   >
 
    <option value="Website">
@@ -257,24 +276,27 @@ remark:"",
    </option>
 
   </select>
+  </div>
 
+ <div className="form-group">
+  <label>Assigned To</label>
   <input
-   type="text"
-   name="assignedTo"
-   value={form.assignedTo}
-   onChange={handleChange}
-   placeholder="Assigned To"
+    name="assignedTo"
+    value={form.assignedTo}
+    onChange={handleChange}
   />
+</div>
 
   
 
+  <div className="form-group">
+  <label>Sector</label>
   <input
-   type="text"
-   name="sector"
-   value={form.sector}
-   onChange={handleChange}
-   placeholder="Sector"
+    name="sector"
+    value={form.sector}
+    onChange={handleChange}
   />
+</div>
 
  </div>
 
@@ -288,52 +310,65 @@ remark:"",
 
     <div className="form-grid">
 
-      <select
-        name="service"
-        value={form.service}
-        onChange={handleChange}
-      >
+     <div className="form-group">
+  <label>Service Type</label>
+  <select
+    name="service"
+    value={form.service}
+    onChange={handleChange}
+  >
         <option>Service</option>
         <option>Service + Product</option>
         <option>Product</option>
         <option>Solution</option>
       </select>
+      </div>
 
-      <select
-        name="status"
-        value={form.status}
-        onChange={handleChange}
-      >
+    <div className="form-group">
+  <label>Status</label>
+  <select
+    name="status"
+    value={form.status}
+    onChange={handleChange}
+  >
         <option>Waiting for Internal</option>
         <option>Waiting for External</option>
         <option>Waiting for Customer</option>
       </select>
+      </div>
 
-      <select
-        name="customerLevel"
-        value={form.customerLevel}
-        onChange={handleChange}
-      >
+   <div className="form-group">
+  <label>Customer Level</label>
+  <select
+    name="customerLevel"
+    value={form.customerLevel}
+    onChange={handleChange}
+  >
         <option>New</option>
         <option>Old</option>
       </select>
+      </div>
 
-      <select
-        name="callType"
-        value={form.callType}
-        onChange={handleChange}
-      >
+     <div className="form-group">
+  <label>Call Type</label>
+  <select
+    name="callType"
+    value={form.callType}
+    onChange={handleChange}
+  >
         <option>AMC</option>
         <option>Service</option>
         <option>Sale</option>
         <option>Presales</option>
       </select>
-
-      <select
-        name="leadStatus"
-        value={form.leadStatus}
-        onChange={handleChange}
-      >
+</div>
+     <div className="form-group">
+  <label>Lead Status</label>
+  <select
+    name="leadStatus"
+    value={form.leadStatus}
+    onChange={handleChange}
+  >
         <option value="Quotation Shared">
           Quotation Shared
         </option>
@@ -342,6 +377,7 @@ remark:"",
           Closed
         </option>
       </select>
+      </div>
 
     </div>
 
@@ -355,11 +391,13 @@ remark:"",
 
     <div className="form-grid">
 
-      <select
-        name="followUpType"
-        value={form.followUpType}
-        onChange={handleChange}
-      >
+     <div className="form-group">
+  <label>Follow Up Type</label>
+  <select
+    name="followUpType"
+    value={form.followUpType}
+    onChange={handleChange}
+  >
         <option value="Payment">
           Payment
         </option>
@@ -372,13 +410,17 @@ remark:"",
           Both
         </option>
       </select>
+      </div>
 
-      <input
-        type="date"
-        name="followUpDate"
-        value={form.followUpDate}
-        onChange={handleChange}
-      />
+     <div className="form-group">
+  <label>Follow Up Date</label>
+  <input
+    type="date"
+    name="followUpDate"
+    value={form.followUpDate}
+    onChange={handleChange}
+  />
+</div>
 
     </div>
 
@@ -419,11 +461,13 @@ remark:"",
 
         <div className="form-grid">
 
-          <select
-            name="gstType"
-            value={form.quotationShared.gstType}
-            onChange={handleQuotation}
-          >
+         <div className="form-group">
+  <label>GST Type</label>
+  <select
+    name="gstType"
+    value={form.quotationShared.gstType}
+    onChange={handleQuotation}
+  >
             <option value="GST">
               GST
             </option>
@@ -432,13 +476,16 @@ remark:"",
               NO GST
             </option>
           </select>
+          </div>
 
-          <input
-            name="quotationNumber"
-            value={form.quotationShared.quotationNumber}
-            onChange={handleQuotation}
-            placeholder="Quotation Number"
-          />
+        <div className="form-group">
+  <label>Quotation Number</label>
+  <input
+    name="quotationNumber"
+    value={form.quotationShared.quotationNumber}
+    onChange={handleQuotation}
+  />
+</div>
 
         </div>
 
@@ -488,47 +535,61 @@ remark:"",
 
         <div className="form-grid">
 
-          <input
-            name="fieldEngineer"
-            value={form.closedDetails.fieldEngineer}
-            onChange={handleClosed}
-            placeholder="Field Engineer"
-          />
+        <div className="form-group">
+  <label>Field Engineer</label>
+  <input
+    name="fieldEngineer"
+    value={form.closedDetails.fieldEngineer}
+    onChange={handleClosed}
+  />
+</div>
 
-          <input
-            name="invoiceNumber"
-            value={form.closedDetails.invoiceNumber}
-            onChange={handleClosed}
-            placeholder="Invoice Number"
-          />
+         <div className="form-group">
+  <label>Invoice Number</label>
+  <input
+    name="invoiceNumber"
+    value={form.closedDetails.invoiceNumber}
+    onChange={handleClosed}
+  />
+</div>
 
-          <input
-            name="outsourceName"
-            value={form.closedDetails.outsourceName}
-            onChange={handleClosed}
-            placeholder="Outsource Name"
-          />
+        <div className="form-group">
+  <label>Outsource Name</label>
+  <input
+    name="outsourceName"
+    value={form.closedDetails.outsourceName}
+    onChange={handleClosed}
+  />
+</div>
 
-          <input
-            type="date"
-            name="outsourceDate"
-            value={form.closedDetails.outsourceDate}
-            onChange={handleClosed}
-          />
+<div className="form-group">
+  <label>Outsource Date</label>
+  <input
+    type="date"
+    name="outsourceDate"
+    value={form.closedDetails.outsourceDate}
+    onChange={handleClosed}
+  />
+</div>
 
-          <input
-            name="internalName"
-            value={form.closedDetails.internalName}
-            onChange={handleClosed}
-            placeholder="Internal Name"
-          />
+       <div className="form-group">
+  <label>Internal Name</label>
+  <input
+    name="internalName"
+    value={form.closedDetails.internalName}
+    onChange={handleClosed}
+  />
+</div>
 
-          <input
-            type="date"
-            name="internalDate"
-            value={form.closedDetails.internalDate}
-            onChange={handleClosed}
-          />
+<div className="form-group">
+  <label>Internal Date</label>
+  <input
+    type="date"
+    name="internalDate"
+    value={form.closedDetails.internalDate}
+    onChange={handleClosed}
+  />
+</div>
 
         </div>
 
@@ -536,21 +597,15 @@ remark:"",
 
     )
   }
-  <div className="form-section">
+ <div className="form-group full-width">
 
- <h3>Remarks</h3>
+  <label>Customer Remarks</label>
 
- <textarea
-
-  name="remark"
-
-  value={form.remark}
-
-  onChange={handleChange}
-
-  placeholder="Enter Customer Remarks"
-
- />
+  <textarea
+    name="remark"
+    value={form.remark}
+    onChange={handleChange}
+  />
 
 </div>
 

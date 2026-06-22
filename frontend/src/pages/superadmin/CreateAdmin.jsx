@@ -52,7 +52,7 @@ const CreateAdmin =
   try{
 
    await API.post(
-    "/admin",
+    "/admins",
     form
    );
 

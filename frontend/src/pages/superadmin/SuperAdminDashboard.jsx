@@ -33,6 +33,7 @@ import {
 
 import "./SuperAdminDashboard.css";
 
+
 const SuperAdminDashboard = () => {
 
 const [organizations,setOrganizations] =
@@ -73,6 +74,44 @@ dashboardData?.newCustomers || 0;
 
 const oldCustomers =
 dashboardData?.oldCustomers || 0;
+
+const [fromDate, setFromDate] =
+useState("");
+
+const [toDate, setToDate] =
+useState("");
+const filteredUsers =
+adminUsers.filter(user => {
+
+  if (!fromDate && !toDate)
+    return true;
+
+  const userDate =
+  new Date(user.createdAt);
+
+  const startDate =
+  fromDate
+  ? new Date(fromDate)
+  : null;
+
+  const endDate =
+  toDate
+  ? new Date(toDate)
+  : null;
+
+  if (
+    startDate &&
+    userDate < startDate
+  ) return false;
+
+  if (
+    endDate &&
+    userDate > endDate
+  ) return false;
+
+  return true;
+
+});
 
 useEffect(() => {
 
@@ -277,133 +316,118 @@ const COLORS = [
 ];
 
   return (
+<div className="super-admin-dashboard">
 
-   <div>
-     <div className="dashboard-header">
+  {/* Header */}
+   <div className="dashboard-header">
   <div>
-    <h1>SuperAdmin Analytics Dashboard</h1>
+    <h1>Admin Analytics Dashboard</h1>
     <p>Lead Management & Performance Overview</p>
   </div>
 </div>
-<div className="stats-grid">
 
-<div className="stat-card">
-<FaBuilding className="stat-icon"/>
-<h3>Total Organizations</h3>
-<h1>{organizations.length}</h1>
-</div>
+  {/* Global Stats */}
+  <div className="stats-grid">
 
-<div className="stat-card">
-<FaUserTie className="stat-icon"/>
-<h3>Total Admins</h3>
-<h1>{admins.length}</h1>
-</div>
+    <div className="stat-card">
+      <FaBuilding className="stat-icon" />
+      <div>
+        <h4>Organizations</h4>
+        <h2>{organizations.length}</h2>
+      </div>
+    </div>
 
-<div className="stat-card">
-  <FaUsers className="stat-icon"/>
+    <div className="stat-card">
+      <FaUserTie className="stat-icon" />
+      <div>
+        <h4>Admins</h4>
+        <h2>{admins.length}</h2>
+      </div>
+    </div>
 
-  <h3>Total Pending Leads</h3>
+    <div className="stat-card">
+      <FaUsers className="stat-icon" />
+      <div>
+        <h4>Pending Leads</h4>
+        <h2>{pendingLeads}</h2>
+      </div>
+    </div>
 
-  <h1>{pendingLeads}</h1>
-</div>
+  </div>
 
-</div>
+  {/* Admin Selector */}
 
-<div className="admin-filter-card">
+  <div className="filter-card">
 
-<h3>Select Admin</h3>
+    <h3>Select Admin</h3>
 
-<select
-value={selectedAdmin}
-onChange={(e)=>{
+    <select
+      value={selectedAdmin}
+      onChange={(e) => {
+        setSelectedAdmin(e.target.value);
+        fetchAdminAnalytics(e.target.value);
+      }}
+    >
+      <option value="">
+        Choose Admin
+      </option>
 
- setSelectedAdmin(
-  e.target.value
- );
+      {admins.map((admin) => (
+        <option
+          key={admin._id}
+          value={admin._id}
+        >
+          {admin.name}
+        </option>
+      ))}
+    </select>
+    
 
- fetchAdminAnalytics(
-  e.target.value
- );
+  </div>
 
-}}
->
+  {/* Admin Stats */}
 
-<option value="">
-Select Admin
-</option>
+  {selectedAdmin && dashboardData && (
 
-{
-admins.map(admin => (
+    <div className="stats-grid">
 
-<option
-key={admin._id}
-value={admin._id}
->
-{admin.name}
-</option>
+      <div className="stat-card">
+        <h4>Total Leads</h4>
+        <h2>{totalLeads}</h2>
+      </div>
 
-))
-}
+      <div className="stat-card">
+        <h4>Active Leads</h4>
+        <h2>{activeLeads}</h2>
+      </div>
 
-</select>
+      <div className="stat-card">
+        <h4>Quotation Shared</h4>
+        <h2>{quotationShared}</h2>
+      </div>
 
-</div>
-{
-selectedAdmin &&
-dashboardData && (
+      <div className="stat-card">
+        <h4>Closed Leads</h4>
+        <h2>{closedLeads}</h2>
+      </div>
 
-<div className="stats-grid">
+      <div className="stat-card">
+        <h4>Follow-up Calls</h4>
+        <h2>{followUpCalls}</h2>
+      </div>
 
-<div className="stat-card">
-<FaUsers/>
-<h3>Total Leads</h3>
-<h1>{totalLeads}</h1>
-</div>
+      <div className="stat-card">
+        <h4>Payment Follow-up</h4>
+        <h2>{followUpPayment}</h2>
+      </div>
 
-<div className="stat-card">
-<FaPhone/>
-<h3>Follow Up Calls</h3>
-<h1>{followUpCalls}</h1>
-</div>
+    </div>
 
-<div className="stat-card">
-<FaMoneyBill/>
-<h3>Payment Followups</h3>
-<h1>{followUpPayment}</h1>
-</div>
+  )}
 
-<div className="stat-card">
-<FaChartLine/>
-<h3>Active Leads</h3>
-<h1>{activeLeads}</h1>
-</div>
+  {/* Charts */}
 
-<div className="stat-card">
-<h3>Quotation Shared</h3>
-<h1>{quotationShared}</h1>
-</div>
-
-<div className="stat-card">
-<h3>Closed Leads</h3>
-<h1>{closedLeads}</h1>
-</div>
-
-<div className="stat-card">
-<h3>New Customers</h3>
-<h1>{newCustomers}</h1>
-</div>
-
-<div className="stat-card">
-<h3>Old Customers</h3>
-<h1>{oldCustomers}</h1>
-</div>
-
-</div>
-
-)
-}
-
-{
+ {
 selectedAdmin &&
 adminUsers.length > 0 && (
 
@@ -642,10 +666,9 @@ adminUsers.length > 0 && (
 
 )
 }
-    
-   </div>
 
-  );
+</div>
+);
 
 };
 

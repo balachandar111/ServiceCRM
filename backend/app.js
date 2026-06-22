@@ -58,6 +58,14 @@ app.use(
   require("./routes/userRoutes")
 );
 
+app.use(
+ "/api/smartcalculator",
+ require(
+  "./routes/smartCalculatorRoutes"
+ )
+);
+
+
 
 
 /* =========================

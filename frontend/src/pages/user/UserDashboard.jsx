@@ -45,11 +45,7 @@ const UserDashboard = () => {
  if (!user) {
 
   return (
-   <div
-    style={{
-     padding:"30px"
-    }}
-   >
+   <div className="loading">
     Loading...
    </div>
   );
@@ -60,91 +56,100 @@ const UserDashboard = () => {
 
   <div className="user-page">
 
-   <h2>
-    My Lead Details
-   </h2>
+   <div className="page-header">
+
+    <h2>
+     My Lead Details
+    </h2>
+
+   
+
+   </div>
 
    <div className="lead-card">
 
-    <p>
-     <strong>Name:</strong>
-     {user.name}
-    </p>
+    {/* Left Side */}
 
-    <p>
-     <strong>Company:</strong>
-     {user.company}
-    </p>
+    <div className="lead-column">
 
-    <p>
-     <strong>Phone:</strong>
-     {user.phoneNumber}
-    </p>
+     <h3>
+      Customer Information
+     </h3>
 
-    <p>
-     <strong>Email:</strong>
-     {user.email}
-    </p>
-<p>
- <strong>Status:</strong>
- {user.status || "Not Assigned"}
-</p>
+     <div className="info-row">
+      <span>Name</span>
+      <strong>{user.name}</strong>
+     </div>
 
-<p>
- <strong>Customer Level:</strong>
- {user.customerLevel || "Not Assigned"}
-</p>
+     <div className="info-row">
+      <span>Company</span>
+      <strong>{user.company}</strong>
+     </div>
 
-<p>
- <strong>Call Type:</strong>
- {user.callType || "Not Assigned"}
-</p>
+     <div className="info-row">
+      <span>Phone</span>
+      <strong>{user.phoneNumber}</strong>
+     </div>
 
-<p>
- <strong>Service:</strong>
- {user.service || "Not Assigned"}
-</p>
-<p>
- <strong>Lead Stage:</strong>
- {user.leadStage || "Not Assigned"}
-</p>
+     <div className="info-row">
+      <span>Email</span>
+      <strong>{user.email}</strong>
+     </div>
 
-<p>
- <strong>Priority:</strong>
- {user.priority || "Medium"}
-</p>
+     <div className="info-row">
+      <span>Customer Level</span>
+      <strong>
+       {user.customerLevel || "-"}
+      </strong>
+     </div>
 
-<p>
- <strong>Source:</strong>
- {user.source || "Website"}
-</p>
+    </div>
 
-<p>
- <strong>Assigned To:</strong>
- {user.assignedTo || "Not Assigned"}
-</p>
+    {/* Right Side */}
 
-<p>
- <strong>Solution:</strong>
- {user.solution || "-"}
-</p>
+    <div className="lead-column">
 
-<p>
- <strong>Product:</strong>
- {user.product || "-"}
-</p>
+     <h3>
+      Lead Information
+     </h3>
 
-<p>
- <strong>Sector:</strong>
- {user.sector || "-"}
-</p>
+     <div className="info-row">
+      <span>Status</span>
+      <strong>
+       {user.status || "-"}
+      </strong>
+     </div>
 
-<p>
- <strong>Remark:</strong>
- {user.remark || "-"}
-</p>
+     <div className="info-row">
+      <span>Call Type</span>
+      <strong>
+       {user.callType || "-"}
+      </strong>
+     </div>
 
-    <button
+     <div className="info-row">
+      <span>Service</span>
+      <strong>
+       {user.service || "-"}
+      </strong>
+     </div>
+
+     <div className="info-row">
+      <span>Lead Stage</span>
+      <strong>
+       {user.leadStage || "-"}
+      </strong>
+     </div>
+
+     <div className="info-row">
+      <span>Priority</span>
+      <strong>
+       {user.priority || "-"}
+      </strong>
+     </div>
+
+    </div>
+     <button
      className="edit-btn"
      onClick={() =>
       setShowEdit(true)

@@ -6,6 +6,7 @@ from "react";
 
 import API
 from "../../services/api";
+import "./UserDashboard.css";
 
 const UserStatusModal = ({
  user,
@@ -125,223 +126,203 @@ useState({
 
     </div>
 
-    <form
-     className="create-form"
-     onSubmit={
-      updateStatus
-     }
-    >
-
-     <label>
-      Status
-     </label>
-
-     <select
-      name="status"
-      value={form.status}
-      onChange={
-       handleChange
-      }
-     >
-
-      <option value="Waiting for Internal">
-       Waiting for Internal
-      </option>
-
-      <option value="Waiting for External">
-       Waiting for External
-      </option>
-
-      <option value="Waiting for Customer">
-       Waiting for Customer
-      </option>
-
-     </select>
-
-     <label>
-      Customer Level
-     </label>
-
-     <select
-      name="customerLevel"
-      value={
-       form.customerLevel
-      }
-      onChange={
-       handleChange
-      }
-     >
-
-      <option value="New">
-       New
-      </option>
-
-      <option value="Old">
-       Old
-      </option>
-
-     </select>
-
-     <label>
-      Call Type
-     </label>
-
-     <select
-      name="callType"
-      value={
-       form.callType
-      }
-      onChange={
-       handleChange
-      }
-     >
-
-      <option value="AMC">
-       AMC
-      </option>
-
-      <option value="Service">
-       Service
-      </option>
-
-      <option value="Sale">
-       Sale
-      </option>
-
-      <option value="Presales">
-       Presales
-      </option>
-
-     </select>
-     <label>Lead Stage</label>
-
-<select
- name="leadStage"
- value={form.leadStage}
- onChange={handleChange}
+   <form
+ className="create-form"
+ onSubmit={updateStatus}
 >
- <option value="Awareness">
-  Awareness
- </option>
 
- <option value="Interest">
-  Interest
- </option>
+<div className="form-group">
+ <label>Status</label>
 
- <option value="Desire">
-  Desire
- </option>
+ <select
+  name="status"
+  value={form.status}
+  onChange={handleChange}
+ >
+  <option value="Waiting for Internal">
+   Waiting for Internal
+  </option>
 
- <option value="Closure">
-  Closure
- </option>
-</select>
+  <option value="Waiting for External">
+   Waiting for External
+  </option>
 
-<label>Priority</label>
+  <option value="Waiting for Customer">
+   Waiting for Customer
+  </option>
+ </select>
+</div>
 
-<select
- name="priority"
- value={form.priority}
- onChange={handleChange}
->
- <option value="Low">
-  Low
- </option>
+<div className="form-group">
+ <label>Customer Level</label>
 
- <option value="Medium">
-  Medium
- </option>
+ <select
+  name="customerLevel"
+  value={form.customerLevel}
+  onChange={handleChange}
+ >
+  <option value="New">
+   New
+  </option>
 
- <option value="High">
-  High
- </option>
-</select>
+  <option value="Old">
+   Old
+  </option>
+ </select>
+</div>
 
-<label>Source</label>
+<div className="form-group">
+ <label>Call Type</label>
 
-<select
- name="source"
- value={form.source}
- onChange={handleChange}
->
- <option value="Website">
-  Website
- </option>
+ <select
+  name="callType"
+  value={form.callType}
+  onChange={handleChange}
+ >
+  <option value="AMC">
+   AMC
+  </option>
 
- <option value="Social media">
-  Social Media
- </option>
+  <option value="Service">
+   Service
+  </option>
 
- <option value="Expo">
-  Expo
- </option>
+  <option value="Sale">
+   Sale
+  </option>
 
- <option value="Referral">
-  Referral
- </option>
-</select>
+  <option value="Presales">
+   Presales
+  </option>
+ </select>
+</div>
 
-<input
- type="text"
- name="assignedTo"
- value={form.assignedTo}
- onChange={handleChange}
- placeholder="Assigned To"
-/>
+<div className="form-group">
+ <label>Lead Stage</label>
 
-<input
- type="text"
- name="solution"
- value={form.solution}
- onChange={handleChange}
- placeholder="Solution"
-/>
+ <select
+  name="leadStage"
+  value={form.leadStage}
+  onChange={handleChange}
+ >
+  <option value="Awareness">
+   Awareness
+  </option>
 
-<input
- type="text"
- name="product"
- value={form.product}
- onChange={handleChange}
- placeholder="Product"
-/>
+  <option value="Interest">
+   Interest
+  </option>
 
-<input
- type="text"
- name="sector"
- value={form.sector}
- onChange={handleChange}
- placeholder="Sector"
-/>
+  <option value="Desire">
+   Desire
+  </option>
 
-<textarea
- name="remark"
- value={form.remark}
- onChange={handleChange}
- placeholder="Remark"
-/>
+  <option value="Closure">
+   Closure
+  </option>
+ </select>
+</div>
 
-     <div
-      className="form-buttons"
-     >
+<div className="form-group">
+ <label>Priority</label>
 
-      <button
-       type="submit"
-       className="save-btn"
-      >
-       Update
-      </button>
+ <select
+  name="priority"
+  value={form.priority}
+  onChange={handleChange}
+ >
+  <option value="Low">
+   Low
+  </option>
 
-      <button
-       type="button"
-       className="cancel-btn"
-       onClick={closeModal}
-      >
-       Close
-      </button>
+  <option value="Medium">
+   Medium
+  </option>
 
-     </div>
+  <option value="High">
+   High
+  </option>
+ </select>
+</div>
 
-    </form>
+<div className="form-group">
+ <label>Lead Source</label>
+
+ <select
+  name="source"
+  value={form.source}
+  onChange={handleChange}
+ >
+  <option value="Website">
+   Website
+  </option>
+
+  <option value="Social media">
+   Social Media
+  </option>
+
+  <option value="Expo">
+   Expo
+  </option>
+
+  <option value="Referral">
+   Referral
+  </option>
+ </select>
+</div>
+
+<div className="form-group">
+ <label>Assigned To</label>
+
+ <input
+  type="text"
+  name="assignedTo"
+  value={form.assignedTo}
+  onChange={handleChange}
+ />
+</div>
+
+<div className="form-group">
+ <label>Sector</label>
+
+ <input
+  type="text"
+  name="sector"
+  value={form.sector}
+  onChange={handleChange}
+ />
+</div>
+
+<div className="form-group">
+ <label>Remarks</label>
+
+ <textarea
+  name="remark"
+  value={form.remark}
+  onChange={handleChange}
+ />
+</div>
+
+<div className="form-buttons">
+
+ <button
+  type="submit"
+  className="save-btn"
+ >
+  Update
+ </button>
+
+ <button
+  type="button"
+  className="cancel-btn"
+  onClick={closeModal}
+ >
+  Close
+ </button>
+
+</div>
+
+</form>
 
    </div>
 
