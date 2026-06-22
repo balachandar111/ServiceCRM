@@ -30,7 +30,8 @@ changeAdminStatus,
 
 deleteAdmin,
 
-adminLogin
+adminLogin,  getAllAdmins,
+  getAdminAnalytics,getAdminDashboard
 
 } = require(
 "../controllers/adminController"
@@ -60,6 +61,18 @@ authorizeRoles(
 "SUPER_ADMIN"
 ),
 createAdmin
+);
+// routes/adminRoutes.js
+
+router.get("/all-admins", getAllAdmins);
+
+router.get(
+  "/admin-analytics/:id",
+  getAdminAnalytics
+);
+router.get(
+  "/dashboard/:id",
+  getAdminDashboard
 );
 
 router.get(

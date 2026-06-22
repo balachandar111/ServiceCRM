@@ -13,19 +13,32 @@ const UserStatusModal = ({
  closeModal
 }) => {
 
- const [form,setForm] =
- useState({
+const [form,setForm] =
+useState({
 
-  status:
-  user?.status || "",
+ status:user?.status || "",
 
-  customerLevel:
-  user?.customerLevel || "",
+ customerLevel:user?.customerLevel || "",
 
-  callType:
-  user?.callType || ""
+ callType:user?.callType || "",
 
- });
+ leadStage:user?.leadStage || "Awareness",
+
+ priority:user?.priority || "Medium",
+
+ source:user?.source || "Website",
+
+ assignedTo:user?.assignedTo || "",
+
+ solution:user?.solution || "",
+
+ product:user?.product || "",
+
+ sector:user?.sector || "",
+
+ remark:user?.remark || ""
+
+});
 
  const handleChange =
  (e)=>{
@@ -200,6 +213,112 @@ const UserStatusModal = ({
       </option>
 
      </select>
+     <label>Lead Stage</label>
+
+<select
+ name="leadStage"
+ value={form.leadStage}
+ onChange={handleChange}
+>
+ <option value="Awareness">
+  Awareness
+ </option>
+
+ <option value="Interest">
+  Interest
+ </option>
+
+ <option value="Desire">
+  Desire
+ </option>
+
+ <option value="Closure">
+  Closure
+ </option>
+</select>
+
+<label>Priority</label>
+
+<select
+ name="priority"
+ value={form.priority}
+ onChange={handleChange}
+>
+ <option value="Low">
+  Low
+ </option>
+
+ <option value="Medium">
+  Medium
+ </option>
+
+ <option value="High">
+  High
+ </option>
+</select>
+
+<label>Source</label>
+
+<select
+ name="source"
+ value={form.source}
+ onChange={handleChange}
+>
+ <option value="Website">
+  Website
+ </option>
+
+ <option value="Social media">
+  Social Media
+ </option>
+
+ <option value="Expo">
+  Expo
+ </option>
+
+ <option value="Referral">
+  Referral
+ </option>
+</select>
+
+<input
+ type="text"
+ name="assignedTo"
+ value={form.assignedTo}
+ onChange={handleChange}
+ placeholder="Assigned To"
+/>
+
+<input
+ type="text"
+ name="solution"
+ value={form.solution}
+ onChange={handleChange}
+ placeholder="Solution"
+/>
+
+<input
+ type="text"
+ name="product"
+ value={form.product}
+ onChange={handleChange}
+ placeholder="Product"
+/>
+
+<input
+ type="text"
+ name="sector"
+ value={form.sector}
+ onChange={handleChange}
+ placeholder="Sector"
+/>
+
+<textarea
+ name="remark"
+ value={form.remark}
+ onChange={handleChange}
+ placeholder="Remark"
+/>
 
      <div
       className="form-buttons"

@@ -32,8 +32,23 @@ const CreateUser = ({ refresh, closeModal }) => {
       outsourceDate: "",
       internalName: "",
       internalDate: "",
-      invoiceNumber: "",
+     invoiceNumber:""
     },
+    leadStage:"Awareness",
+
+priority:"Medium",
+
+source:"Website",
+
+assignedTo:"",
+
+solution:"",
+
+product:"",
+
+sector:"",
+
+remark:"",
   });
 
   // Handler for Flat/Top-level Fields
@@ -110,7 +125,7 @@ const CreateUser = ({ refresh, closeModal }) => {
         </div>
 
         {/* Form Body */}
-        <form className="create-form" onSubmit={saveLead}>
+      <form className="create-form" onSubmit={saveLead}>
 
   {/* BASIC DETAILS */}
 
@@ -169,6 +184,115 @@ const CreateUser = ({ refresh, closeModal }) => {
     </div>
 
   </div>
+  <div className="form-section">
+
+ <h3>Customer Information</h3>
+
+ <div className="form-grid">
+
+  <select
+   name="leadStage"
+   value={form.leadStage}
+   onChange={handleChange}
+  >
+
+   <option value="Awareness">
+    Awareness
+   </option>
+
+   <option value="Interest">
+    Interest
+   </option>
+
+   <option value="Desire">
+    Desire
+   </option>
+
+   <option value="Closure">
+    Closure
+   </option>
+
+  </select>
+
+  <select
+   name="priority"
+   value={form.priority}
+   onChange={handleChange}
+  >
+
+   <option value="Low">
+    Low
+   </option>
+
+   <option value="Medium">
+    Medium
+   </option>
+
+   <option value="High">
+    High
+   </option>
+
+  </select>
+
+  <select
+   name="source"
+   value={form.source}
+   onChange={handleChange}
+  >
+
+   <option value="Website">
+    Website
+   </option>
+
+   <option value="Social media">
+    Social Media
+   </option>
+
+   <option value="Expo">
+    Expo
+   </option>
+
+   <option value="Referral">
+    Referral
+   </option>
+
+  </select>
+
+  <input
+   type="text"
+   name="assignedTo"
+   value={form.assignedTo}
+   onChange={handleChange}
+   placeholder="Assigned To"
+  />
+
+  <input
+   type="text"
+   name="solution"
+   value={form.solution}
+   onChange={handleChange}
+   placeholder="Solution"
+  />
+
+  <input
+   type="text"
+   name="product"
+   value={form.product}
+   onChange={handleChange}
+   placeholder="Product"
+  />
+
+  <input
+   type="text"
+   name="sector"
+   value={form.sector}
+   onChange={handleChange}
+   placeholder="Sector"
+  />
+
+ </div>
+
+</div>
 
   {/* CRM DETAILS */}
 
@@ -426,6 +550,23 @@ const CreateUser = ({ refresh, closeModal }) => {
 
     )
   }
+  <div className="form-section">
+
+ <h3>Remarks</h3>
+
+ <textarea
+
+  name="remark"
+
+  value={form.remark}
+
+  onChange={handleChange}
+
+  placeholder="Enter Customer Remarks"
+
+ />
+
+</div>
 
   <button
     type="submit"

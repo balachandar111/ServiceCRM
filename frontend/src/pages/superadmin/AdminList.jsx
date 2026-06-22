@@ -41,7 +41,7 @@ const AdminList = () => {
   try{
 
    const { data } =
-   await API.get("/admin");
+   await API.get("/admins");
 
    setAdmins(data.data);
 
@@ -95,7 +95,7 @@ const AdminList = () => {
   try{
 
    await API.delete(
-    `/admin/${id}`
+    `/admins/${id}`
    );
 
    fetchAdmins();
@@ -114,7 +114,7 @@ const AdminList = () => {
   try{
 
    await API.put(
-    `/admin/status/${id}`
+    `/admins/status/${id}`
    );
 
    fetchAdmins();

@@ -8,7 +8,8 @@ from "react-router-dom";
 
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/Dashboard";
-
+import SuperAdminDashboard
+from "./pages/superadmin/SuperAdminDashboard";
 const ProtectedRoute = ({
  children
 }) => {
@@ -54,6 +55,10 @@ function App() {
      }
 
     />
+    <Route
+ path="/super-dashboard"
+ element={<SuperAdminDashboard />}
+/>
 
     <Route
 

@@ -124,9 +124,70 @@ loginStatus: {
 
   internalDate:Date,
 
-  invoiceNumber:String
+invoiceNumber: {
+  type: String,
+  default: null
+}
 
  },
+ leadStage:{
+ type:String,
+ enum:[
+  "Awareness",
+  "Interest",
+  "Desire",
+  "Closure"
+ ],
+ default:"Awareness"
+},
+
+priority:{
+ type:String,
+ enum:[
+  "Low",
+  "Medium",
+  "High"
+ ],
+ default:"Medium"
+},
+
+source:{
+ type:String,
+ enum:[
+  "Website",
+  "Social media",
+  "Expo",
+  "Referral"
+ ],
+ default:"Website"
+},
+
+assignedTo:String,
+
+solution:String,
+
+product:String,
+
+sector:String,
+
+remark:{
+ type:String,
+ default:""
+},
+
+lastRemarks:[
+ {
+  remark:String,
+  updatedAt:{
+   type:Date,
+   default:Date.now
+  }
+ }
+],
+createdBy:{
+  type:mongoose.Schema.Types.ObjectId,
+  ref:"Admin"
+},
 
 
 
@@ -134,6 +195,7 @@ loginStatus: {
 {
  timestamps:true
 });
+
 
 module.exports =
 mongoose.model(

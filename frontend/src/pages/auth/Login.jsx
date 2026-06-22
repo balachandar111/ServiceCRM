@@ -53,7 +53,7 @@ const Login = () => {
 }
 
    else if(formData.role==="ADMIN"){
- url = `${API_URL}/admin/login`;
+ url = `${API_URL}/admins/login`;
 }
 
   else{

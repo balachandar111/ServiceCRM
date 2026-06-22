@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const Admin = require("../models/Admin");
 
-const User = require("../models/Admin");
 
 const Organization =
 require("../models/Organization");
@@ -37,7 +38,7 @@ exports.createAdmin = async (req, res) => {
         }
 
         const existingAdmin =
-        await User.findOne({
+        await Admin.findOne({
             username
         });
 
@@ -57,7 +58,7 @@ exports.createAdmin = async (req, res) => {
         );
 
         const admin =
-        await User.create({
+        await Admin.create({
 
             organization:
             organization._id,
@@ -79,7 +80,8 @@ exports.createAdmin = async (req, res) => {
 
             role: "ADMIN",
 
-            status: "ACTIVE"
+            status: "ACTIVE",
+            
 
         });
 
@@ -112,7 +114,7 @@ res
 try{
 
 const admins =
-await User.find({
+await Admin.find({
 role:"ADMIN"
 })
 .populate(
@@ -152,7 +154,7 @@ res
 try{
 
 const admin =
-await User.findById(
+await Admin.findById(
 req.params.id
 )
 .populate(
@@ -193,7 +195,7 @@ res
 try{
 
 const admin =
-await User.findById(
+await Admin.findById(
 req.params.id
 );
 
@@ -264,7 +266,7 @@ res
 try {
 
 const admin =
-await User.findById(
+await Admin.findById(
 req.params.id
 );
 
@@ -326,7 +328,7 @@ res
 try{
 
 const admin =
-await User.findById(
+await Admin.findById(
 req.params.id
 );
 
@@ -339,7 +341,7 @@ message:"Admin Not Found"
 
 }
 
-await User.findByIdAndDelete(
+await Admin.findByIdAndDelete(
 req.params.id
 );
 
@@ -363,6 +365,148 @@ message:error.message
 }
 
 };
+exports.getAllAdmins = async (req, res) => {
+  try {
+
+    const admins = await Admin.find({
+      role: "ADMIN"
+    })
+      .populate(
+        "organization",
+        "orgName orgCode"
+      )
+      .select("-password");
+
+    res.status(200).json({
+      success: true,
+      data: admins
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
+
+exports.getAdminAnalytics =
+async(req,res)=>{
+
+ try{
+
+  const users =
+  await Admin.find({
+
+   createdBy:
+   req.params.id
+
+  });
+
+  res.status(200).json({
+
+   success:true,
+
+   data:users
+
+  });
+
+ }
+ catch(error){
+
+  res.status(500).json({
+
+   success:false,
+
+   message:error.message
+
+  });
+
+ }
+
+};
+
+
+// adminController.js
+
+
+const User = require("../models/User");
+
+exports.getAdminDashboard = async (req, res) => {
+  try {
+
+    const adminId = req.params.id;
+
+    const users = await User.find({
+      createdBy: adminId,
+      role: "USER"
+    });
+
+    const analytics = {
+
+      totalLeads: users.length,
+
+      activeLeads: users.filter(
+        user => user.loginStatus === "ACTIVE"
+      ).length,
+
+      quotationShared: users.filter(
+        user => user.leadStatus === "Quotation Shared"
+      ).length,
+
+      closedLeads: users.filter(
+        user => user.leadStatus === "Closed"
+      ).length,
+
+      paymentFollowups: users.filter(
+        user =>
+          user.followUpType === "Payment" ||
+          user.followUpType === "Both"
+      ).length,
+
+      callFollowups: users.filter(
+        user =>
+          user.followUpType === "Calls" ||
+          user.followUpType === "Both"
+      ).length,
+
+      awareness: users.filter(
+        user => user.leadStage === "Awareness"
+      ).length,
+
+      interest: users.filter(
+        user => user.leadStage === "Interest"
+      ).length,
+
+      desire: users.filter(
+        user => user.leadStage === "Desire"
+      ).length,
+
+      closure: users.filter(
+        user => user.leadStage === "Closure"
+      ).length,
+
+      users
+    };
+
+    res.status(200).json({
+      success: true,
+      data: analytics
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
 exports.adminLogin = async (req, res) => {
 
     try {
@@ -373,7 +517,7 @@ exports.adminLogin = async (req, res) => {
         } = req.body;
 
         const admin =
-        await User.findOne({
+        await Admin.findOne({
 
             username,
 

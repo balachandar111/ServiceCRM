@@ -29,3 +29,10 @@ app.use(
  "/api/users",
  userRoutes
 );
+const adminRoutes =
+require("./routes/adminRoutes");
+
+app.use(
+ "/api/admins",
+ adminRoutes
+);

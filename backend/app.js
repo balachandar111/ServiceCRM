@@ -49,7 +49,7 @@ app.use(
 );
 
 app.use(
-  "/api/admin",
+  "/api/admins",
   require("./routes/adminRoutes")
 );
 

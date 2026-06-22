@@ -20,6 +20,11 @@ import UserDashboard
 from "./user/UserDashboard";
 import PendingLeads
 from "./superadmin/PendingLeads";
+import AdminDashboard
+from "./admin/AdminDashboard";
+
+import SuperAdminDashboard
+from "./superadmin/SuperAdminDashboard";
 
 const Dashboard = () => {
 
@@ -303,65 +308,19 @@ const Dashboard = () => {
 
 }
 
-        {
-          activeMenu ===
-          "dashboard" && (
+       {
+        role === "ADMIN" &&
+ activeMenu ===
+ "dashboard" &&
 
-            <>
+ <AdminDashboard />
+}
+{
+ role === "SUPER_ADMIN" &&
+ activeMenu === "dashboard" &&
 
-              <div
-                style={{
-                  background:
-                  "linear-gradient(135deg,#2563eb,#7c3aed)",
-                  color: "#fff",
-                  padding: "30px",
-                  borderRadius: "20px",
-                  marginBottom: "25px"
-                }}
-              >
-
-                <h1>
-                  Welcome
-                  {" "}
-                  {user?.name}
-                </h1>
-
-                <p>
-                  CRM Management System
-                </p>
-
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                  "repeat(auto-fit,minmax(250px,1fr))",
-                  gap: "20px"
-                }}
-              >
-
-                <div
-                  className="card"
-                >
-
-                  <h2>
-                    Dashboard
-                  </h2>
-
-                  <p>
-                    Overview
-                  </p>
-
-                </div>
-
-              </div>
-
-            </>
-
-          )
-        }
-
+ <SuperAdminDashboard />
+}
       </div>
 
     </div>

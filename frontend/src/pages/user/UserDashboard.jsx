@@ -104,6 +104,45 @@ const UserDashboard = () => {
  <strong>Service:</strong>
  {user.service || "Not Assigned"}
 </p>
+<p>
+ <strong>Lead Stage:</strong>
+ {user.leadStage || "Not Assigned"}
+</p>
+
+<p>
+ <strong>Priority:</strong>
+ {user.priority || "Medium"}
+</p>
+
+<p>
+ <strong>Source:</strong>
+ {user.source || "Website"}
+</p>
+
+<p>
+ <strong>Assigned To:</strong>
+ {user.assignedTo || "Not Assigned"}
+</p>
+
+<p>
+ <strong>Solution:</strong>
+ {user.solution || "-"}
+</p>
+
+<p>
+ <strong>Product:</strong>
+ {user.product || "-"}
+</p>
+
+<p>
+ <strong>Sector:</strong>
+ {user.sector || "-"}
+</p>
+
+<p>
+ <strong>Remark:</strong>
+ {user.remark || "-"}
+</p>
 
     <button
      className="edit-btn"

@@ -7,82 +7,82 @@ const generateToken = require("../utils/generateToken");
 // =========================
 
 
-exports.createUser = async(req,res)=>{
+exports.createUser = async (req, res) => {
+  try {
 
- try{
+    const existingUser =
+      await User.findOne({
+        username: req.body.username
+      });
 
-  const existingUser =
-  await User.findOne({
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Username Already Exists"
+      });
+    }
 
-   username:req.body.username
+    const hashedPassword =
+      await bcrypt.hash(
+        req.body.password,
+        10
+      );
 
-  });
+    // ===== ADD HERE =====
 
-  if(existingUser){
+    if (
+      req.body.leadStatus === "Closed" &&
+      req.body.closedDetails &&
+      !req.body.closedDetails.invoiceNumber
+    ) {
+      req.body.closedDetails.invoiceNumber =
+        "INV-" + Date.now();
+    }
 
-   return res.status(400).json({
+    // ===== END =====
 
-    success:false,
+    const user = await User.create({
 
-    message:
-    "Username Already Exists"
+      ...req.body,
 
-   });
+      password: hashedPassword,
+
+      role: "USER",
+
+      createdBy: req.user.id,
+
+      organization: req.user.organization,
+
+      approvalStatus: "PENDING",
+
+      loginStatus: "INACTIVE",
+
+    });
+
+    res.status(201).json({
+
+      success: true,
+
+      message:
+        "Lead Created Successfully",
+
+      data: user
+
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
 
   }
-
-  const hashedPassword =
-  await bcrypt.hash(
-   req.body.password,
-   10
-  );
-
-  const user =
-  await User.create({
-
-   ...req.body,
-
-   password:hashedPassword,
-
-   role:"USER",
-
-   createdBy:req.user.id,
-
-   organization:
-   req.user.organization,
-
-  approvalStatus: "PENDING",
-
- loginStatus: "INACTIVE"
-  });
-
-  res.status(201).json({
-
-   success:true,
-
-   message:
-   "Lead Created & Waiting For Super Admin Approval",
-
-   data:user
-
-  });
-
- }
- catch(error){
-
-  console.log(error);
-
-  res.status(500).json({
-
-   success:false,
-
-   message:error.message
-
-  });
-
- }
-
 };
+
+ 
 // =========================
 // GET ALL USERS OF ADMIN
 exports.getUsers = async (req,res)=>{
@@ -603,8 +603,6 @@ async(req,res)=>{
 
  try{
 
-  console.log("REQ.USER =>", req.user);
-  console.log("BODY =>", req.body);
 
   const user =
   await User.findById(
@@ -622,14 +620,20 @@ async(req,res)=>{
 
   }
 
-  user.status =
-  req.body.status;
+ user.status = req.body.status;
+user.customerLevel = req.body.customerLevel;
+user.callType = req.body.callType;
 
-  user.customerLevel =
-  req.body.customerLevel;
+user.leadStage = req.body.leadStage;
+user.priority = req.body.priority;
+user.source = req.body.source;
 
-  user.callType =
-  req.body.callType;
+user.assignedTo = req.body.assignedTo;
+user.solution = req.body.solution;
+user.product = req.body.product;
+user.sector = req.body.sector;
+
+user.remark = req.body.remark;
 
   await user.save();
 
