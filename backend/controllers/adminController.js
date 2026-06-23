@@ -507,6 +507,68 @@ exports.getAdminDashboard = async (req, res) => {
 
   }
 };
+
+
+exports.getOverallDashboard = async (req, res) => {
+  try {
+
+    const users = await User.find({
+      role: "USER"
+    });
+
+    const analytics = {
+
+      totalLeads: users.length,
+
+      activeLeads: users.filter(
+        user => user.loginStatus === "ACTIVE"
+      ).length,
+
+      quotationShared: users.filter(
+        user => user.leadStatus === "Quotation Shared"
+      ).length,
+
+      closedLeads: users.filter(
+        user => user.leadStatus === "Closed"
+      ).length,
+
+      paymentFollowups: users.filter(
+        user =>
+          user.followUpType === "Payment" ||
+          user.followUpType === "Both"
+      ).length,
+
+      callFollowups: users.filter(
+        user =>
+          user.followUpType === "Calls" ||
+          user.followUpType === "Both"
+      ).length,
+
+      newCustomers: users.filter(
+        user => user.customerLevel === "New"
+      ).length,
+
+      oldCustomers: users.filter(
+        user => user.customerLevel === "Old"
+      ).length,
+
+      users
+    };
+
+    res.status(200).json({
+      success: true,
+      data: analytics
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
 exports.adminLogin = async (req, res) => {
 
     try {

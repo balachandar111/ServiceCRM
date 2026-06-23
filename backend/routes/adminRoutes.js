@@ -31,7 +31,7 @@ changeAdminStatus,
 deleteAdmin,
 
 adminLogin,  getAllAdmins,
-  getAdminAnalytics,getAdminDashboard
+  getAdminAnalytics,getAdminDashboard,getOverallDashboard
 
 } = require(
 "../controllers/adminController"
@@ -73,6 +73,10 @@ router.get(
 router.get(
   "/dashboard/:id",
   getAdminDashboard
+);
+router.get(
+  "/overall-dashboard",
+  getOverallDashboard
 );
 
 router.get(

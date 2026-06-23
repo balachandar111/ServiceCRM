@@ -6,13 +6,16 @@ import React, {
 import API from "../../services/api";
 
 import {
- FaUsers,
- FaPhone,
- FaMoneyBill,
- FaChartLine
-}
+  FaUsers,
+  FaPhone,
+  FaMoneyBill,
+  FaChartLine,
+  FaClipboardList,
+  FaCheckCircle,
+  FaUserPlus,
+  FaUserFriends
+} from "react-icons/fa";
 
-from "react-icons/fa";
 const COLORS = [
   "#2563EB",
   "#7C3AED",
@@ -318,64 +321,56 @@ filteredUsers.filter(
 ).length;
 
  return(
+    <>
 
  <div >
 
 
 
-  <div className="dashboard-header">
+ <div className="dashboard-header">
   <div>
-    <h1>Admin Analytics Dashboard</h1>
-    <p>Lead Management & Performance Overview</p>
+    <h1>Admin Dashboard</h1>
+    <p>Lead Management & Performance Analytics</p>
   </div>
 </div>
  
    <div className="date-filter-container">
 
- <div className="date-filter-box">
+ <div className="filter-section">
 
-  <label>
-   From Date
-  </label>
+  <div className="date-filter-box">
+    <label>From Date</label>
+    <input
+      type="date"
+      value={fromDate}
+      onChange={(e) =>
+        setFromDate(e.target.value)
+      }
+    />
+  </div>
 
-  <input
-   type="date"
-   value={fromDate}
-   onChange={(e)=>
-    setFromDate(
-     e.target.value
-    )
-   }
-  />
+  <div className="date-filter-box">
+    <label>To Date</label>
+    <input
+      type="date"
+      value={toDate}
+      onChange={(e) =>
+        setToDate(e.target.value)
+      }
+    />
+  </div>
 
- </div>
+  <button
+    className="clear-btn"
+    onClick={() => {
+      setFromDate("");
+      setToDate("");
+    }}
+  >
+    Clear Filter
+  </button>
 
- <div className="date-filter-box">
-
-  <label>
-   To Date
-  </label>
-
-  <input
-   type="date"
-   value={toDate}
-   onChange={(e)=>
-    setToDate(
-     e.target.value
-    )
-   }
-  />
-
- </div>
- <button
- className="clear-filter-btn"
- onClick={() => {
-   setFromDate("");
-   setToDate("");
- }}
->
- Clear
-</button>
+</div>
 
 </div>
 
@@ -446,23 +441,39 @@ filteredUsers.filter(
 
     </div>
 <div className="stat-card">
- <h4>Quotation Shared</h4>
- <h2>{quotationShared}</h2>
+  <FaClipboardList
+    className="stat-icon"
+  
+  />
+  <h4>Quotation Shared</h4>
+  <h2>{quotationShared}</h2>
 </div>
 
 <div className="stat-card">
- <h4>Closed Leads</h4>
- <h2>{closedLeads}</h2>
+  <FaCheckCircle
+    className="stat-icon"
+   
+  />
+  <h4>Closed Leads</h4>
+  <h2>{closedLeads}</h2>
 </div>
 
 <div className="stat-card">
- <h4>New Customers</h4>
- <h2>{newCustomers}</h2>
+  <FaUserPlus
+    className="stat-icon"
+  
+  />
+  <h4>New Customers</h4>
+  <h2>{newCustomers}</h2>
 </div>
 
 <div className="stat-card">
- <h4>Old Customers</h4>
- <h2>{oldCustomers}</h2>
+  <FaUserFriends
+    className="stat-icon"
+  
+  />
+  <h4>Old Customers</h4>
+  <h2>{oldCustomers}</h2>
 </div>
    </div>
   
@@ -710,7 +721,7 @@ filteredUsers.filter(
 
   </div>
   
-
+</>
  );
 
 };

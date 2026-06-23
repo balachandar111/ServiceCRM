@@ -33,7 +33,6 @@ import {
 
 import "./SuperAdminDashboard.css";
 
-
 const SuperAdminDashboard = () => {
 
 const [organizations,setOrganizations] =
@@ -75,55 +74,55 @@ dashboardData?.newCustomers || 0;
 const oldCustomers =
 dashboardData?.oldCustomers || 0;
 
-const [fromDate, setFromDate] =
-useState("");
-
-const [toDate, setToDate] =
-useState("");
-const filteredUsers =
-adminUsers.filter(user => {
-
-  if (!fromDate && !toDate)
-    return true;
-
-  const userDate =
-  new Date(user.createdAt);
-
-  const startDate =
-  fromDate
-  ? new Date(fromDate)
-  : null;
-
-  const endDate =
-  toDate
-  ? new Date(toDate)
-  : null;
-
-  if (
-    startDate &&
-    userDate < startDate
-  ) return false;
-
-  if (
-    endDate &&
-    userDate > endDate
-  ) return false;
-
-  return true;
-
-});
-
 useEffect(() => {
 
  fetchOrganizations();
  fetchAdmins();
+ fetchOverallDashboard();
 
 }, []);
+const fetchOverallDashboard = async() => {
+
+ try{
+
+  const { data } =
+  await API.get(
+   "/admins/overall-dashboard"
+  );
+
+  setDashboardData(
+   data.data
+  );
+
+  setAdminUsers(
+   data.data.users || []
+  );
+
+ }
+ catch(error){
+
+  console.log(error);
+
+ }
+
+};
 
 const pendingLeads =
 adminUsers.filter(
- item =>
- item.leadStatus === "Pending"
+ user =>
+ user.approvalStatus === "Pending"
+).length;
+
+const approvedLeads =
+adminUsers.filter(
+ user =>
+ user.approvalStatus === "Approved"
+).length;
+
+const rejectedLeads =
+adminUsers.filter(
+ user =>
+ user.approvalStatus === "Rejected"
 ).length;
 
 const fetchOrganizations = async() => {
@@ -319,17 +318,15 @@ const COLORS = [
 <div className="super-admin-dashboard">
 
   {/* Header */}
-   <div className="dashboard-header">
-  <div>
-    <h1>Admin Analytics Dashboard</h1>
-    <p>Lead Management & Performance Overview</p>
-  </div>
-</div>
+ <div className="superadmin-section">
 
-  {/* Global Stats */}
+  <h2 className="section-title">
+    Super Admin Overview
+  </h2>
+
   <div className="stats-grid">
 
-    <div className="stat-card">
+    <div className="stat-card super-card">
       <FaBuilding className="stat-icon" />
       <div>
         <h4>Organizations</h4>
@@ -337,7 +334,7 @@ const COLORS = [
       </div>
     </div>
 
-    <div className="stat-card">
+    <div className="stat-card super-card">
       <FaUserTie className="stat-icon" />
       <div>
         <h4>Admins</h4>
@@ -345,90 +342,125 @@ const COLORS = [
       </div>
     </div>
 
-    <div className="stat-card">
-      <FaUsers className="stat-icon" />
-      <div>
-        <h4>Pending Leads</h4>
-        <h2>{pendingLeads}</h2>
-      </div>
-    </div>
+  
+
+   <div className="stat-card super-card">
+  <FaChartLine className="stat-icon" />
+  <div>
+    <h4>Pending Leads</h4>
+    <h2>{pendingLeads}</h2>
+  </div>
+</div>
+
+
 
   </div>
+
+</div>
 
   {/* Admin Selector */}
+    <h2 className="section-title">
+    Admin Overview
+  </h2>
 
-  <div className="filter-card">
+<div className="filter-card">
 
-    <h3>Select Admin</h3>
+  <h3>
+    Select Admin Analytics
+  </h3>
 
-    <select
-      value={selectedAdmin}
-      onChange={(e) => {
-        setSelectedAdmin(e.target.value);
-        fetchAdminAnalytics(e.target.value);
-      }}
-    >
-      <option value="">
-        Choose Admin
+  <select
+    value={selectedAdmin}
+    onChange={(e)=>{
+
+      const id =
+      e.target.value;
+
+      setSelectedAdmin(id);
+
+      if(id){
+
+        fetchAdminAnalytics(id);
+
+      }else{
+
+        fetchOverallDashboard();
+
+      }
+
+    }}
+  >
+
+    <option value="">
+      Overall Dashboard
+    </option>
+
+    {admins.map(admin=>(
+      <option
+        key={admin._id}
+        value={admin._id}
+      >
+        {admin.name}
       </option>
+    ))}
 
-      {admins.map((admin) => (
-        <option
-          key={admin._id}
-          value={admin._id}
-        >
-          {admin.name}
-        </option>
-      ))}
-    </select>
-    
+  </select>
 
-  </div>
+</div>
 
   {/* Admin Stats */}
 
-  {selectedAdmin && dashboardData && (
+{dashboardData && (
 
-    <div className="stats-grid">
+<div className="stats-grid">
 
-      <div className="stat-card">
-        <h4>Total Leads</h4>
-        <h2>{totalLeads}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Total Leads</h4>
+  <h2>{totalLeads}</h2>
+ </div>
 
-      <div className="stat-card">
-        <h4>Active Leads</h4>
-        <h2>{activeLeads}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Active Leads</h4>
+  <h2>{activeLeads}</h2>
+ </div>
 
-      <div className="stat-card">
-        <h4>Quotation Shared</h4>
-        <h2>{quotationShared}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Quotation Shared</h4>
+  <h2>{quotationShared}</h2>
+ </div>
 
-      <div className="stat-card">
-        <h4>Closed Leads</h4>
-        <h2>{closedLeads}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Closed Leads</h4>
+  <h2>{closedLeads}</h2>
+ </div>
 
-      <div className="stat-card">
-        <h4>Follow-up Calls</h4>
-        <h2>{followUpCalls}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Follow-up Calls</h4>
+  <h2>{followUpCalls}</h2>
+ </div>
 
-      <div className="stat-card">
-        <h4>Payment Follow-up</h4>
-        <h2>{followUpPayment}</h2>
-      </div>
+ <div className="stat-card">
+  <h4>Payment Follow-up</h4>
+  <h2>{followUpPayment}</h2>
+ </div>
 
-    </div>
+ <div className="stat-card">
+  <h4>New Customers</h4>
+  <h2>{newCustomers}</h2>
+ </div>
 
-  )}
+ <div className="stat-card">
+  <h4>Old Customers</h4>
+  <h2>{oldCustomers}</h2>
+ </div>
+
+</div>
+
+)}
 
   {/* Charts */}
 
  {
-selectedAdmin &&
 adminUsers.length > 0 && (
 
 <div className="charts-grid">

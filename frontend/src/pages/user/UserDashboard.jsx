@@ -53,104 +53,109 @@ const UserDashboard = () => {
  }
 
 return (
+    <>
 
-<div className="user-page">
+<div className="lead-card">
 
-  <div className="page-header">
+  <div className="section-title">
+    Customer & Lead Information
+  </div>
 
-    <div>
-      <h2>My Lead Details</h2>
-      <p>Customer & Lead Information</p>
+ 
+
+  <div className="details-grid">
+
+    <div className="detail-item">
+      <label>Name</label>
+      <p>{user.name}</p>
     </div>
 
-  
+    <div className="detail-item">
+      <label>Company</label>
+      <p>{user.company}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Phone Number</label>
+      <p>{user.phoneNumber}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Email</label>
+      <p>{user.email}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Customer Level</label>
+      <p>{user.customerLevel || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Lead Stage</label>
+      <p>{user.leadStage || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Status</label>
+      <p>{user.status || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Call Type</label>
+      <p>{user.callType || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Service</label>
+      <p>{user.service || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Priority</label>
+      <p>{user.priority || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Follow Up</label>
+      <p>{user.followUpType || "-"}</p>
+    </div>
+
+    <div className="detail-item">
+      <label>Follow Up Date</label>
+      <p>
+        {user.followUpDate
+          ? new Date(
+              user.followUpDate
+            ).toLocaleDateString()
+          : "-"}
+      </p>
+    </div>
 
   </div>
 
-  <div className="lead-card">
-
-    <div className="lead-column">
-
-      <h3>Customer Information</h3>
-
-      <div className="info-row">
-        <span>Name</span>
-        <strong>{user.name}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Company</span>
-        <strong>{user.company}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Phone Number</span>
-        <strong>{user.phoneNumber}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Email</span>
-        <strong>{user.email}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Customer Level</span>
-        <strong>{user.customerLevel || "-"}</strong>
-      </div>
-
-    </div>
-
-    <div className="lead-column">
-
-      <h3>Lead Information</h3>
-
-      <div className="info-row">
-        <span>Status</span>
-        <strong>{user.status || "-"}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Call Type</span>
-        <strong>{user.callType || "-"}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Service</span>
-        <strong>{user.service || "-"}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Lead Stage</span>
-        <strong>{user.leadStage || "-"}</strong>
-      </div>
-
-      <div className="info-row">
-        <span>Priority</span>
-        <strong>{user.priority || "-"}</strong>
-      </div>
-
-    </div>
-      <button
+  <div className="action-area">
+    <button
       className="edit-btn"
       onClick={() => setShowEdit(true)}
     >
       Update Status
     </button>
-
   </div>
 
-  {showEdit && (
-
-    <UserStatusModal
-      user={user}
-      refresh={fetchProfile}
-      closeModal={() => setShowEdit(false)}
-    />
-
-  )}
-  
-
 </div>
+{
+ showEdit && (
+
+  <UserStatusModal
+   user={user}
+   refresh={fetchProfile}
+   closeModal={() =>
+    setShowEdit(false)
+   }
+  />
+
+ )
+}</>
 
 );
 

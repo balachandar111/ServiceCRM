@@ -7,16 +7,43 @@ import API from "../../services/api";
 
 import CreateUser from "./CreateUser";
 import EditUser from "./EditUser";
+import "./UserList.css"
 
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const UserList = () => {
 
  const [users, setUsers] =
  useState([]);
 
- const [search, setSearch] =
- useState("");
+const [showCalculator,setShowCalculator] =
+useState(false);
+
+const [calculatorData,setCalculatorData] =
+useState([]);
+
+const fetchCalculatorData = async(user)=>{
+
+ try{
+
+  const { data } =
+  await API.get(
+   "/smartcalculator/all"
+  );
+
+  console.log(data);
+
+  setCalculatorData(data.data);
+
+ }
+ catch(error){
+
+  console.log(error);
+
+ }
+
+};
 
  const [showCreate,
  setShowCreate] =
@@ -52,6 +79,111 @@ const UserList = () => {
   }
 
  };
+ const downloadExcel = () => {
+
+ const worksheet =
+ XLSX.utils.json_to_sheet(
+  filteredUsers
+ );
+
+ const workbook =
+ XLSX.utils.book_new();
+
+ XLSX.utils.book_append_sheet(
+  workbook,
+  worksheet,
+  "Users"
+ );
+
+ const excelBuffer =
+ XLSX.write(
+  workbook,
+  {
+   bookType:"xlsx",
+   type:"array"
+  }
+ );
+
+ const file =
+ new Blob(
+  [excelBuffer],
+  {
+   type:
+   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  }
+ );
+
+ saveAs(
+  file,
+  "Users.xlsx"
+ );
+
+};
+
+const handleFileUpload =
+async(e)=>{
+
+ const file =
+ e.target.files[0];
+
+ if(!file) return;
+
+ const formData =
+ new FormData();
+
+ formData.append(
+  "file",
+  file
+ );
+
+ try{
+
+  await API.post(
+   "/users/bulk-upload",
+   formData,
+   {
+    headers:{
+     "Content-Type":
+     "multipart/form-data"
+    }
+   }
+  );
+
+  alert(
+   "Users Uploaded Successfully"
+  );
+
+  fetchUsers();
+
+ }
+ catch(error){
+
+  console.log(error);
+
+ }
+
+};
+
+
+
+ const [search,setSearch] = useState("");
+
+const [serviceFilter,setServiceFilter] =
+useState("");
+
+const [priorityFilter,setPriorityFilter] =
+useState("");
+
+const [stageFilter,setStageFilter] =
+useState("");
+
+const [sourceFilter,setSourceFilter] =
+useState("");
+
+const [currentPage,setCurrentPage] =
+useState(1);
+
+const usersPerPage = 10;
 
  useEffect(() => {
 
@@ -105,16 +237,80 @@ const UserList = () => {
 
  };
 
- const filteredUsers =
- users.filter(user =>
+const filteredUsers = users.filter(user => {
 
-  user.name
-   ?.toLowerCase()
-   .includes(
-    search.toLowerCase()
-   )
+ const matchSearch =
 
+(user.name || "")
+.toLowerCase()
+.includes(search.toLowerCase())
+
+||
+
+(user.company || "")
+.toLowerCase()
+.includes(search.toLowerCase())
+
+||
+
+(user.phoneNumber || "")
+.toLowerCase()
+.includes(search.toLowerCase())
+
+||
+
+(user.email || "")
+.toLowerCase()
+.includes(search.toLowerCase());
+
+ const matchService =
+ serviceFilter
+ ? user.service === serviceFilter
+ : true;
+
+ const matchPriority =
+ priorityFilter
+ ? user.priority === priorityFilter
+ : true;
+
+ const matchStage =
+ stageFilter
+ ? user.leadStage === stageFilter
+ : true;
+
+ const matchSource =
+ sourceFilter
+ ? user.source === sourceFilter
+ : true;
+
+ return (
+  matchSearch &&
+  matchService &&
+  matchPriority &&
+  matchStage &&
+  matchSource
  );
+
+});
+
+
+const indexOfLastUser =
+currentPage * usersPerPage;
+
+const indexOfFirstUser =
+indexOfLastUser - usersPerPage;
+
+const currentUsers =
+filteredUsers.slice(
+ indexOfFirstUser,
+ indexOfLastUser
+);
+
+const totalPages =
+Math.ceil(
+ filteredUsers.length /
+ usersPerPage
+);
 
  return (
 
@@ -126,34 +322,177 @@ const UserList = () => {
      User Management
     </h2>
 
-    <button
-     className="create-btn"
-     onClick={() =>
-      setShowCreate(true)
-     }
-    >
-     + Create User
-    </button>
+   
 
    </div>
 
-   <input
+   <div className="user-toolbar">
 
-    type="text"
+ <input
+  type="text"
+  placeholder="Search User..."
+  value={search}
+  onChange={(e)=>
+   setSearch(
+    e.target.value
+   )
+  }
+  className="search-box"
+ />
 
-    className="search-box"
+ <button
+  className="download-btn"
+  onClick={downloadExcel}
+ >
+  Download Excel
+ </button>
 
-    placeholder="Search User"
+ <label className="upload-btn">
 
-    value={search}
+  Upload Excel
 
-    onChange={(e) =>
-     setSearch(
-      e.target.value
-     )
-    }
+  <input
+   type="file"
+   hidden
+   accept=".xlsx,.xls,.csv"
+   onChange={handleFileUpload}
+  />
 
-   />
+ </label>
+
+ <button
+  className="create-btn"
+  onClick={() =>
+   setShowCreate(true)
+  }
+ >
+  + Create User
+ </button>
+
+</div>
+<div className="user-filters">
+
+ <select
+  value={serviceFilter}
+  onChange={(e)=>
+   setServiceFilter(
+    e.target.value
+   )
+  }
+ >
+  <option value="">
+   All Service
+  </option>
+
+  <option>
+   Service
+  </option>
+
+  <option>
+   Product
+  </option>
+
+  <option>
+   Solution
+  </option>
+
+ </select>
+
+ <select
+  value={priorityFilter}
+  onChange={(e)=>
+   setPriorityFilter(
+    e.target.value
+   )
+  }
+ >
+  <option value="">
+   All Priority
+  </option>
+
+  <option>
+   High
+  </option>
+
+  <option>
+   Medium
+  </option>
+
+  <option>
+   Low
+  </option>
+ </select>
+
+ <select
+  value={stageFilter}
+  onChange={(e)=>
+   setStageFilter(
+    e.target.value
+   )
+  }
+ >
+  <option value="">
+   All Stages
+  </option>
+
+  <option>
+   Awareness
+  </option>
+
+  <option>
+   Interest
+  </option>
+
+  <option>
+   Desire
+  </option>
+
+  <option>
+   Closure
+  </option>
+ </select>
+
+ <select
+  value={sourceFilter}
+  onChange={(e)=>
+   setSourceFilter(
+    e.target.value
+   )
+  }
+ >
+  <option value="">
+   All Sources
+  </option>
+
+  <option>
+   Website
+  </option>
+
+  <option>
+   Referral
+  </option>
+
+  <option>
+   Expo
+  </option>
+
+  <option>
+   Social media
+  </option>
+ </select>
+<button
+ className="clear-btn"
+ onClick={()=>{
+  setSearch("");
+  setServiceFilter("");
+  setPriorityFilter("");
+  setStageFilter("");
+  setSourceFilter("");
+ }}
+>
+ Clear Filters
+</button>
+</div>
 
    <div className="table-wrapper">
 
@@ -192,7 +531,7 @@ const UserList = () => {
       {
        filteredUsers.length > 0 ?
 
-       filteredUsers.map(
+       currentUsers.map(
         user => (
 
          <tr
@@ -320,6 +659,7 @@ const UserList = () => {
            >
             Toggle
            </button>
+       
 
            <button
 
@@ -362,8 +702,60 @@ const UserList = () => {
       }
 
      </tbody>
+    
 
     </table>
+     <div className="pagination">
+
+ <button
+  disabled={currentPage===1}
+  onClick={()=>
+   setCurrentPage(
+    currentPage-1
+   )
+  }
+ >
+  Previous
+ </button>
+
+ {
+  [...Array(totalPages)]
+  .map((_,index)=>(
+
+   <button
+    key={index}
+    className={
+     currentPage===
+     index+1
+      ? "active-page"
+      : ""
+    }
+    onClick={()=>
+     setCurrentPage(
+      index+1
+     )
+    }
+   >
+    {index+1}
+   </button>
+
+  ))
+ }
+
+ <button
+  disabled={
+   currentPage===totalPages
+  }
+  onClick={()=>
+   setCurrentPage(
+    currentPage+1
+   )
+  }
+ >
+  Next
+ </button>
+
+</div>
 
    </div>
 
@@ -406,6 +798,115 @@ const UserList = () => {
 
     />
    }
+   {
+ showCalculator && (
+
+  <div className="modal-overlay">
+
+   <div className="calculator-modal">
+
+    <div className="modal-header">
+
+     <h3>
+      Smart Calculator Files
+     </h3>
+
+     <button
+      onClick={() =>
+       setShowCalculator(false)
+      }
+     >
+      ✖
+     </button>
+
+    </div>
+
+    <table className="crm-table">
+
+     <thead>
+
+      <tr>
+
+       <th>Company</th>
+
+       <th>Order No</th>
+
+       <th>File</th>
+
+       <th>Date</th>
+
+      </tr>
+
+     </thead>
+
+     <tbody>
+
+      {
+       calculatorData.length > 0 ?
+
+       calculatorData.map(item => (
+
+        <tr key={item._id}>
+
+         <td>
+          {item.companyName}
+         </td>
+
+         <td>
+          {item.orderNo}
+         </td>
+
+         <td>
+
+          <a
+           href={item.fileUrl}
+           target="_blank"
+           rel="noreferrer"
+          >
+           View File
+          </a>
+
+         </td>
+
+         <td>
+          {
+           new Date(
+            item.createdAt
+           ).toLocaleDateString()
+          }
+         </td>
+
+        </tr>
+
+       ))
+
+       :
+
+       <tr>
+
+        <td
+         colSpan="4"
+         style={{
+          textAlign:"center"
+         }}
+        >
+         No Files Found
+        </td>
+
+       </tr>
+
+      }
+
+     </tbody>
+
+    </table>
+
+   </div>
+
+  </div>
+
+ )
+}
 
   </div>
 

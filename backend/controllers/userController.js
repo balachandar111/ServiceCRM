@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
-
+const XLSX = require("xlsx");
 // =========================
                      
 // =========================
@@ -82,7 +82,139 @@ exports.createUser = async (req, res) => {
   }
 };
 
- 
+ exports.bulkUploadUsers = async (req, res) => {
+ try {
+
+  if (!req.file) {
+   return res.status(400).json({
+    success: false,
+    message: "Excel file required"
+   });
+  }
+
+  const workbook =
+   XLSX.readFile(req.file.path);
+
+  const sheetName =
+   workbook.SheetNames[0];
+
+  const data =
+   XLSX.utils.sheet_to_json(
+    workbook.Sheets[sheetName]
+   );
+
+  let usersToInsert = [];
+
+  for (const item of data) {
+
+   const existingUser =
+    await User.findOne({
+     username: item.username
+    });
+
+   if (existingUser) continue;
+
+   const hashedPassword =
+    await bcrypt.hash(
+     item.password || "Password@123",
+     10
+    );
+
+   usersToInsert.push({
+
+    name: item.name,
+    company: item.company,
+    phoneNumber: item.phoneNumber,
+    email: item.email,
+
+    username: item.username,
+
+    password: hashedPassword,
+
+    service:
+     item.service || "Service",
+
+    status:
+     item.status ||
+     "Waiting for Internal",
+
+    customerLevel:
+     item.customerLevel || "New",
+
+    callType:
+     item.callType || "AMC",
+
+    leadStatus:
+     item.leadStatus ||
+     "Quotation Shared",
+
+    loginStatus:
+     item.loginStatus ||
+     "INACTIVE",
+
+    followUpType:
+     item.followUpType ||
+     "Payment",
+
+    followUpDate:
+     item.followUpDate,
+
+    leadStage:
+     item.leadStage ||
+     "Awareness",
+
+    priority:
+     item.priority ||
+     "Medium",
+
+    source:
+     item.source ||
+     "Website",
+
+    assignedTo:
+     item.assignedTo || "",
+
+    sector:
+     item.sector || "",
+
+    remark:
+     item.remark || "",
+
+    role: "USER",
+
+    createdBy:
+     req.user.id,
+
+    organization:
+     req.user.organization,
+
+    approvalStatus:
+     "PENDING"
+   });
+
+  }
+
+  await User.insertMany(
+   usersToInsert
+  );
+
+  res.status(200).json({
+   success: true,
+   message:
+    `${usersToInsert.length} Users Uploaded Successfully`
+  });
+
+ } catch (error) {
+
+  console.log(error);
+
+  res.status(500).json({
+   success: false,
+   message: error.message
+  });
+
+ }
+};
 // =========================
 // GET ALL USERS OF ADMIN
 exports.getUsers = async (req,res)=>{
@@ -120,6 +252,7 @@ exports.getUsers = async (req,res)=>{
  }
 
 };
+
 
 // =========================
 // GET SINGLE USER

@@ -3,6 +3,8 @@ const router = express.Router();
 
 const { protect } =
 require("../middlewares/authMiddleware");
+const uploadExcel =
+require("../middlewares/uploadExcel");
 
 const {
  userLogin,
@@ -15,7 +17,7 @@ const {
  myProfile, getPendingLeads,
  approveLead,
  rejectUser,
- updateMyStatus
+ updateMyStatus,bulkUploadUsers
 } = require("../controllers/userController");
 
 // PUBLIC
@@ -26,7 +28,12 @@ router.get(
  protect,
  getPendingLeads
 );
-
+router.post(
+ "/bulk-upload",
+ protect,
+ uploadExcel.single("file"),
+ bulkUploadUsers
+);
 router.put(
  "/approve/:id",
  protect,
