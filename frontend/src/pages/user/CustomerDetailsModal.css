@@ -1,0 +1,146 @@
+/* Overlay */
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+/* Small Modal */
+
+.details-modal{
+  width:75%;
+  max-width:850px;
+  max-height:85vh;
+
+  overflow-y:auto;
+
+  background:#fff;
+
+  border-radius:14px;
+
+  box-shadow:
+  0 10px 30px rgba(0,0,0,.15);
+}
+
+/* Header */
+
+.modal-header{
+  padding:15px 20px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  border-bottom:1px solid #e5e7eb;
+}
+
+.modal-header h2{
+  font-size:20px;
+  font-weight:600;
+  color:#1e293b;
+}
+
+.close-btn{
+  width:32px;
+  height:32px;
+
+  border:none;
+  border-radius:50%;
+
+  background:#ef4444;
+  color:white;
+
+  cursor:pointer;
+}
+
+/* Body */
+
+.details-body{
+  padding:18px;
+}
+
+/* Section */
+
+.details-section{
+  margin-bottom:15px;
+}
+
+.details-section h3{
+  font-size:15px;
+  color:#2563eb;
+  margin-bottom:10px;
+}
+
+/* 2 Columns */
+
+.details-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+/* Small Cards */
+
+.details-grid > div{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  padding:10px 12px;
+}
+
+.details-grid label{
+  display:block;
+  font-size:11px;
+  color:#64748b;
+  font-weight:600;
+  margin-bottom:3px;
+  text-transform:uppercase;
+}
+
+.details-grid p{
+  margin:0;
+  font-size:14px;
+  font-weight:500;
+  color:#0f172a;
+}
+
+/* Remarks */
+
+.remarks-box{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  padding:12px;
+}
+
+.remarks-box label{
+  font-size:11px;
+  color:#64748b;
+  font-weight:600;
+  text-transform:uppercase;
+}
+
+.remarks-box p{
+  margin-top:8px;
+  font-size:14px;
+  color:#0f172a;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+  .details-modal{
+    width:95%;
+  }
+
+  .details-grid{
+    grid-template-columns:1fr;
+  }
+
+}

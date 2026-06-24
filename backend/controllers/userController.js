@@ -731,58 +731,57 @@ exports.myProfile = async (req,res)=>{
  }
 
 };
-exports.updateMyStatus =
-async(req,res)=>{
+exports.updateMyStatus = async (req, res) => {
 
- try{
+ try {
 
-
-  const user =
-  await User.findById(
+  const user = await User.findById(
    req.user.id
   );
 
-  console.log("FOUND USER =>", user);
-
-  if(!user){
+  if (!user) {
 
    return res.status(404).json({
-    success:false,
-    message:"User Not Found"
+    success: false,
+    message: "User Not Found"
    });
 
   }
 
- user.status = req.body.status;
-user.customerLevel = req.body.customerLevel;
-user.callType = req.body.callType;
+  user.status = req.body.status;
+  user.customerLevel = req.body.customerLevel;
+  user.callType = req.body.callType;
 
-user.leadStage = req.body.leadStage;
-user.priority = req.body.priority;
-user.source = req.body.source;
+  user.leadStage = req.body.leadStage;
+  user.priority = req.body.priority;
+  user.source = req.body.source;
 
-user.assignedTo = req.body.assignedTo;
-user.solution = req.body.solution;
-user.product = req.body.product;
-user.sector = req.body.sector;
+  user.assignedTo = req.body.assignedTo;
+  user.solution = req.body.solution;
+  user.product = req.body.product;
+  user.sector = req.body.sector;
 
-user.remark = req.body.remark;
+  user.followUpType = req.body.followUpType;
+  user.followUpDate = req.body.followUpDate;
+
+  user.remark = req.body.remark;
 
   await user.save();
 
   res.status(200).json({
-   success:true,
-   data:user
+   success: true,
+   message: "Status Updated Successfully",
+   data: user
   });
 
  }
- catch(error){
+ catch (error) {
 
   console.log(error);
 
   res.status(500).json({
-   success:false,
-   message:error.message
+   success: false,
+   message: error.message
   });
 
  }

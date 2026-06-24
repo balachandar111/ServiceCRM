@@ -17,8 +17,7 @@ import {
 import OrganizationList from "./superadmin/OrganizationList";
 import AdminList from "./superadmin/AdminList";
 import UserList from "./admin/UserList";
-import UserDashboard
-from "./user/UserDashboard";
+
 import PendingLeads
 from "./superadmin/PendingLeads";
 import AdminDashboard
@@ -29,20 +28,19 @@ from "./superadmin/SuperAdminDashboard";
 import SmartCalculator
 from "./user/SmartCalculator";
 
-import LeadManagement
-from "./admin/LeadManagement";
+import UserCustomers
+from "./user/UserCustomers";
+import CustomerAnalytics
+from "./user/CustomerAnalytics";
+import UserReminders
+from "./user/UserReminders";
 
 const Dashboard = () => {
 
  
   const role =
     localStorage.getItem("role");
-    const [activeMenu, setActiveMenu] =
-  useState(
-    role === "USER"
-      ? "myleads"
-      : "dashboard"
-  );
+  const [activeMenu, setActiveMenu] = useState("dashboard");
 
   const navigate = useNavigate();
 
@@ -106,11 +104,15 @@ const Dashboard = () => {
             }}
           >
 
-           {(role === "SUPER_ADMIN" || role === "ADMIN") && (
+         {(role === "SUPER_ADMIN" ||
+  role === "ADMIN" ||
+  role === "USER") && (
   <li
     onClick={() => setActiveMenu("dashboard")}
     className={`menu-item ${
-      activeMenu === "dashboard" ? "active-menu" : ""
+      activeMenu === "dashboard"
+        ? "active-menu"
+        : ""
     }`}
   >
     <FaTachometerAlt />
@@ -181,19 +183,22 @@ const Dashboard = () => {
               )
             }
             
+            
 
           {
   role === "USER" && (
     <>
-      <li
-        onClick={() => setActiveMenu("myleads")}
-         className={`menu-item ${
-      activeMenu === "myleads" ? "active-menu" : ""
-    }`}
-      >
-        <FaClipboardList />
-        My Leads
-      </li>
+     <li
+  onClick={() => setActiveMenu("Customers")}
+  className={`menu-item ${
+    activeMenu === "Customers"
+      ? "active-menu"
+      : ""
+  }`}
+>
+  <FaClipboardList />
+  Customers
+</li>
 
       <li
         onClick={() => setActiveMenu("smartcalculator")}
@@ -206,6 +211,20 @@ const Dashboard = () => {
         <FaChartLine />
         Smart Calculator
       </li>
+      <li
+ onClick={() =>
+  setActiveMenu("reminders")
+ }
+ className={`menu-item ${
+  activeMenu === "reminders"
+  ? "active-menu"
+  : ""
+ }`}
+>
+ <FaClipboardList />
+ Reminders
+
+</li>
     </>
   )
 }
@@ -266,17 +285,8 @@ const Dashboard = () => {
           <UserList />
         }
 
-      {
- activeMenu === "leads" &&
- <LeadManagement />
-}
-{
- activeMenu ===
- "myleads" &&
+  
 
- <UserDashboard />
-
-}
 
 
         {
@@ -333,8 +343,21 @@ const Dashboard = () => {
  <SuperAdminDashboard />
 }
 {
+ activeMenu === "Customers" &&
+ <UserCustomers />
+}
+{
   activeMenu === "smartcalculator" &&
   <SmartCalculator />
+}
+{
+ activeMenu === "dashboard" &&
+ role === "USER" &&
+ <CustomerAnalytics />
+}
+{
+ activeMenu === "reminders" &&
+ <UserReminders />
 }
       </div>
 

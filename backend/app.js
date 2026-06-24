@@ -64,6 +64,12 @@ app.use(
   "./routes/smartCalculatorRoutes"
  )
 );
+app.use(
+ "/api/customers",
+require(
+  "./routes/customerRoutes"
+ )
+);
 
 
 

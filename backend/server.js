@@ -7,6 +7,10 @@ const cors = require("cors");
 const userRoutes =
 require("./routes/userRoutes");
 
+const customerRoutes =
+require("./routes/customerRoutes");
+
+
 const adminRoutes =
 require("./routes/adminRoutes");
 
@@ -30,7 +34,10 @@ app.use(
  "/api/admins",
  adminRoutes
 );
-
+app.use(
+ "/api/customers",
+ customerRoutes
+);
 app.use(
  "/api/smartcalculator",
  smartCalculatorRoutes
