@@ -55,6 +55,8 @@ const CustomerAnalytics = () => {
 
  },[]);
 
+ 
+
  const fetchCustomers =
  async()=>{
 
@@ -328,6 +330,49 @@ filteredCustomers.filter(
   }
 
  ];
+ const monthlyTrendData = [];
+
+const monthMap = {};
+
+filteredCustomers.forEach(customer => {
+
+ const date = new Date(
+  customer.createdAt
+ );
+
+ const month =
+ date.toLocaleString(
+  "default",
+  {
+   month:"short"
+  }
+ );
+
+ const year =
+ date.getFullYear();
+
+ const key =
+ `${month}-${year}`;
+
+ monthMap[key] =
+ (monthMap[key] || 0) + 1;
+
+});
+
+Object.keys(monthMap).forEach(
+ key => {
+
+  monthlyTrendData.push({
+
+   month:key,
+
+   customers:
+   monthMap[key]
+
+  });
+
+ }
+);
 
  return(
 
@@ -651,6 +696,45 @@ filteredCustomers.filter(
 </LineChart>
 
 </ResponsiveContainer>
+
+</div>
+<div className="chart-card">
+
+ <h3>
+  Monthly Customer Trend
+ </h3>
+
+ <ResponsiveContainer
+  width="100%"
+  height={300}
+ >
+
+  <LineChart
+   data={monthlyTrendData}
+  >
+
+   <CartesianGrid
+    strokeDasharray="3 3"
+   />
+
+   <XAxis
+    dataKey="month"
+   />
+
+   <YAxis />
+
+   <Tooltip />
+
+   <Line
+    type="monotone"
+    dataKey="customers"
+    stroke="#2563EB"
+    strokeWidth={4}
+   />
+
+  </LineChart>
+
+ </ResponsiveContainer>
 
 </div>
 
