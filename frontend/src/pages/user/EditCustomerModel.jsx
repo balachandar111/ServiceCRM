@@ -7,6 +7,120 @@ const EditCustomerModal = ({
  refresh,
  closeModal
 }) => {
+    
+     const [dropdowns,setDropdowns] = useState({
+    
+     service:[
+      "Service",
+      "Product",
+      "Solution",
+      "Service + Product"
+     ],
+    
+     status:[
+      "Waiting for Internal",
+      "Waiting for External",
+      "Waiting for Customer"
+     ],
+    
+     customerLevel:[
+      "New",
+      "Old"
+     ],
+    
+     callType:[
+      "AMC",
+      "Service",
+      "Sale",
+      "Presales"
+     ],
+    
+     leadStage:[
+      "Awareness",
+      "Interest",
+      "Desire",
+      "Closure"
+     ],
+    
+     priority:[
+      "Low",
+      "Medium",
+      "High"
+     ],
+    
+     source:[
+      "Website",
+      "Referral",
+      "Expo",
+      "Social Media"
+     ],
+    
+     followUpType:[
+      "Payment",
+      "Calls",
+      "Both"
+     ]
+    
+    });
+
+const [showOptionPopup,setShowOptionPopup] =
+useState(false);
+
+const [selectedField,setSelectedField] =
+useState("");
+
+const [newOption,setNewOption] =
+useState("");
+const openAddPopup = (field)=>{
+
+ setSelectedField(field);
+
+ setNewOption("");
+
+ setShowOptionPopup(true);
+
+};
+const addNewOption = ()=>{
+
+ if(!newOption.trim()) return;
+
+ setDropdowns(prev=>({
+
+  ...prev,
+
+  [selectedField]:[
+   ...prev[selectedField],
+   newOption
+  ]
+
+ }));
+
+ setShowOptionPopup(false);
+
+};
+const deleteOption = (
+ field,
+ value
+)=>{
+
+ if(
+  !window.confirm(
+   `Delete ${value}?`
+  )
+ ) return;
+
+ setDropdowns(prev=>({
+
+  ...prev,
+
+  [field]:
+  prev[field].filter(
+   item=>item!==value
+  )
+
+ }));
+
+};
 
  const [form,setForm] = useState({
 
@@ -326,102 +440,212 @@ const EditCustomerModal = ({
 
 {/* LEAD */}
 
-<div className="form-section">
+  <section className="form-section">
 
-<h3>Lead Information</h3>
+          <h3>Lead Information</h3>
 
-<div className="form-grid">
+          <div className="form-grid">
+
+            <div className="input-group">
+              <label>Service</label>
+             <div className="dropdown-wrapper">
+
+
+
+<div className="dropdown-actions">
 
 <select
  name="service"
  value={form.service}
  onChange={handleChange}
 >
- <option>Service</option>
- <option>Product</option>
- <option>Solution</option>
- <option>Service + Product</option>
+
+{
+ dropdowns.service.map(
+ item=>(
+  <option
+   key={item}
+   value={item}
+  >
+   {item}
+  </option>
+ )
+)
+
+}
+
 </select>
 
-<select
- name="status"
- value={form.status}
- onChange={handleChange}
+<button
+ type="button"
+ className="mini-add-btn"
+ onClick={()=>
+  openAddPopup(
+   "service"
+  )
+ }
 >
- <option>Waiting for Internal</option>
- <option>Waiting for External</option>
- <option>Waiting for Customer</option>
-</select>
-
-<select
- name="customerLevel"
- value={form.customerLevel}
- onChange={handleChange}
->
- <option>New</option>
- <option>Old</option>
-</select>
-
-<select
- name="callType"
- value={form.callType}
- onChange={handleChange}
->
- <option>AMC</option>
- <option>Service</option>
- <option>Sale</option>
- <option>Presales</option>
-</select>
-
-<select
- name="leadStage"
- value={form.leadStage}
- onChange={handleChange}
->
- <option>Awareness</option>
- <option>Interest</option>
- <option>Desire</option>
- <option>Closure</option>
-</select>
-
-<select
- name="priority"
- value={form.priority}
- onChange={handleChange}
->
- <option>Low</option>
- <option>Medium</option>
- <option>High</option>
-</select>
-
-<select
- name="source"
- value={form.source}
- onChange={handleChange}
->
- <option>Website</option>
- <option>Referral</option>
- <option>Expo</option>
- <option>Social media</option>
-</select>
-
-<select
- name="leadStatus"
- value={form.leadStatus}
- onChange={handleChange}
->
- <option value="Quotation Shared">
-  Quotation Shared
- </option>
-
- <option value="Closed">
-  Closed
- </option>
-</select>
+ +
+</button>
 
 </div>
 
+
+
 </div>
+            </div>
+
+            <div className="input-group">
+              <label>Status</label>
+              <select
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <option>Waiting for Internal</option>
+                <option>Waiting for External</option>
+                <option>Waiting for Customer</option>
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Customer Level</label>
+              <select
+                name="customerLevel"
+                value={form.customerLevel}
+                onChange={handleChange}
+              >
+                <option>New</option>
+                <option>Old</option>
+              </select>
+            </div>
+
+          <div className="input-group">
+
+ <label>Call Type</label>
+
+ <div className="dropdown-actions">
+
+  <select
+   name="callType"
+   value={form.callType}
+   onChange={handleChange}
+  >
+
+   {
+    dropdowns.callType.map(item=>(
+     <option
+      key={item}
+      value={item}
+     >
+      {item}
+     </option>
+    ))
+   }
+
+  </select>
+
+  <button
+   type="button"
+   className="mini-add-btn"
+   onClick={()=>
+    openAddPopup("callType")
+   }
+  >
+   +
+  </button>
+
+ </div>
+
+</div>
+
+            <div className="input-group">
+              <label>Lead Stage</label>
+              <select
+                name="leadStage"
+                value={form.leadStage}
+                onChange={handleChange}
+              >
+                <option>Awareness</option>
+                <option>Interest</option>
+                <option>Desire</option>
+                <option>Closure</option>
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Priority</label>
+              <select
+                name="priority"
+                value={form.priority}
+                onChange={handleChange}
+              >
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+
+          {/* SOURCE */}
+<div className="input-group">
+
+ <label>Source</label>
+
+ <div className="dropdown-actions">
+
+  <select
+   name="source"
+   value={form.source}
+   onChange={handleChange}
+  >
+
+   {
+    dropdowns.source.map(item=>(
+     <option
+      key={item}
+      value={item}
+     >
+      {item}
+     </option>
+    ))
+   }
+
+  </select>
+
+  <button
+   type="button"
+   className="mini-add-btn"
+   onClick={()=>
+    openAddPopup("source")
+   }
+  >
+   +
+  </button>
+
+ </div>
+
+</div>
+
+            <div className="input-group">
+              <label>Lead Status</label>
+              <select
+                name="leadStatus"
+                value={form.leadStatus}
+                onChange={handleChange}
+              >
+                <option value="Quotation Shared">
+                  Quotation Shared
+                </option>
+
+                <option value="Closed">
+                  Closed
+                </option>
+              </select>
+            </div>
+
+          </div>
+
+        </section>
 
 {/* FOLLOWUP */}
 
@@ -692,7 +916,80 @@ Email Shared
 </div>
 
 </form>
+{
+ showOptionPopup &&
 
+<div className="option-popup-overlay">
+
+<div className="option-popup">
+
+<h3>
+
+ Add Option
+
+</h3>
+
+<p>
+
+Field :
+
+ <b>
+  {selectedField}
+ </b>
+
+</p>
+
+<input
+
+ value={newOption}
+
+ onChange={(e)=>
+  setNewOption(
+   e.target.value
+  )
+ }
+
+ placeholder="Enter New Option"
+
+/>
+
+<div
+ className="popup-buttons"
+>
+
+<button
+ type="button"
+ className="save-option-btn"
+ onClick={addNewOption}
+>
+
+ Save
+
+</button>
+
+<button
+ type="button"
+ className="cancel-option-btn"
+ onClick={()=>{
+
+  setShowOptionPopup(
+   false
+  );
+
+ }}
+>
+
+ Cancel
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+}
 
 </div>
 

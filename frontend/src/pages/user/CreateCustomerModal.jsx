@@ -424,39 +424,7 @@ return (
 
 </div>
 
-<div className="option-list">
 
-{
- dropdowns.service.map(
- item=>(
-
-<span
- key={item}
- className="option-chip"
->
-
- {item}
-
- <button
-  type="button"
-  onClick={()=>
-   deleteOption(
-    "service",
-    item
-   )
-  }
- >
-
-  ×
-
- </button>
-
-</span>
-
-))
-}
-
-</div>
 
 </div>
             </div>
@@ -486,19 +454,44 @@ return (
               </select>
             </div>
 
-            <div className="input-group">
-              <label>Call Type</label>
-              <select
-                name="callType"
-                value={form.callType}
-                onChange={handleChange}
-              >
-                <option>AMC</option>
-                <option>Service</option>
-                <option>Sale</option>
-                <option>Presales</option>
-              </select>
-            </div>
+          <div className="input-group">
+
+ <label>Call Type</label>
+
+ <div className="dropdown-actions">
+
+  <select
+   name="callType"
+   value={form.callType}
+   onChange={handleChange}
+  >
+
+   {
+    dropdowns.callType.map(item=>(
+     <option
+      key={item}
+      value={item}
+     >
+      {item}
+     </option>
+    ))
+   }
+
+  </select>
+
+  <button
+   type="button"
+   className="mini-add-btn"
+   onClick={()=>
+    openAddPopup("callType")
+   }
+  >
+   +
+  </button>
+
+ </div>
+
+</div>
 
             <div className="input-group">
               <label>Lead Stage</label>
@@ -527,19 +520,45 @@ return (
               </select>
             </div>
 
-            <div className="input-group">
-              <label>Source</label>
-              <select
-                name="source"
-                value={form.source}
-                onChange={handleChange}
-              >
-                <option>Website</option>
-                <option>Referral</option>
-                <option>Expo</option>
-                <option>Social media</option>
-              </select>
-            </div>
+          {/* SOURCE */}
+<div className="input-group">
+
+ <label>Source</label>
+
+ <div className="dropdown-actions">
+
+  <select
+   name="source"
+   value={form.source}
+   onChange={handleChange}
+  >
+
+   {
+    dropdowns.source.map(item=>(
+     <option
+      key={item}
+      value={item}
+     >
+      {item}
+     </option>
+    ))
+   }
+
+  </select>
+
+  <button
+   type="button"
+   className="mini-add-btn"
+   onClick={()=>
+    openAddPopup("source")
+   }
+  >
+   +
+  </button>
+
+ </div>
+
+</div>
 
             <div className="input-group">
               <label>Lead Status</label>

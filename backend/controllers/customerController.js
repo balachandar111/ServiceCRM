@@ -277,43 +277,178 @@ async(req,res)=>{
 
 
 exports.bulkUploadCustomers = async (req, res) => {
- try {
+  try {
 
- 
+    const workbook = XLSX.readFile(req.file.path);
 
-  const XLSX = require("xlsx");
+    const sheet =
+      workbook.Sheets[
+        workbook.SheetNames[0]
+      ];
 
-  const workbook = XLSX.readFile(req.file.path);
+    const rows =
+      XLSX.utils.sheet_to_json(sheet);
 
-  const sheet =
-   workbook.Sheets[
-    workbook.SheetNames[0]
-   ];
+    const customers = [];
 
-  const customers =
-   XLSX.utils.sheet_to_json(sheet);
+    for (const row of rows) {
 
-  
+      const customerData = {
 
-  await Customer.insertMany(customers);
+        name: row.name || "",
 
-  res.status(200).json({
-   success: true,
-   message: "Customers Uploaded"
-  });
+        company: row.company || "",
 
- } catch (error) {
+        phoneNumber: row.phoneNumber || "",
 
-  console.log("========== ERROR ==========");
-  console.log(error);
-  console.log("===========================");
+        email: row.email || "",
 
-  res.status(500).json({
-   success: false,
-   message: error.message
-  });
+        service: row.service || "Service",
 
- }
+        status:
+          row.status ||
+          "Waiting for Internal",
+
+        customerLevel:
+          row.customerLevel ||
+          "New",
+
+        callType:
+          row.callType ||
+          "AMC",
+
+        leadStatus:
+          row.leadStatus ||
+          "Quotation Shared",
+
+        followUpType:
+          row.followUpType ||
+          "Payment",
+
+        followUpDate:
+          row.followUpDate
+            ? new Date(row.followUpDate)
+            : null,
+
+        leadStage:
+          row.leadStage ||
+          "Awareness",
+
+        priority:
+          row.priority ||
+          "Medium",
+
+        source:
+          row.source ||
+          "Website",
+
+        assignedTo:
+          row.assignedTo || "",
+
+        sector:
+          row.sector || "",
+
+        expense:
+          Number(row.expense) || 0,
+
+        remark:
+          row.remark || ""
+      };
+
+      // QUOTATION SHARED
+
+      if (
+        row.leadStatus ===
+        "Quotation Shared"
+      ) {
+
+        customerData.quotationShared = {
+
+          whatsappShared:
+            row.whatsappShared === true ||
+            row.whatsappShared === "TRUE",
+
+          emailShared:
+            row.emailShared === true ||
+            row.emailShared === "TRUE",
+
+          gstType:
+            row.gstType || "GST",
+
+          quotationNumber:
+            row.quotationNumber || ""
+
+        };
+      }
+
+      // CLOSED
+
+      if (
+        row.leadStatus ===
+        "Closed"
+      ) {
+
+        customerData.closedDetails = {
+
+          engineers:
+            row.engineers
+              ? row.engineers
+                  .split(",")
+                  .map(e => e.trim())
+              : [],
+
+          fieldEngineer:
+            row.fieldEngineer || "",
+
+          outsourceName:
+            row.outsourceName || "",
+
+          outsourceDate:
+            row.outsourceDate
+              ? new Date(
+                  row.outsourceDate
+                )
+              : null,
+
+          internalName:
+            row.internalName || "",
+
+          internalDate:
+            row.internalDate
+              ? new Date(
+                  row.internalDate
+                )
+              : null,
+
+          invoiceNumber:
+            row.invoiceNumber || ""
+
+        };
+      }
+
+      customers.push(customerData);
+    }
+
+    await Customer.insertMany(
+      customers
+    );
+
+    res.status(201).json({
+      success: true,
+      message:
+        "Customers uploaded successfully"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
 };
 
 exports.downloadCustomers =
