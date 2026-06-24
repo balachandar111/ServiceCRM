@@ -219,25 +219,161 @@ await API.post(
 
 };
 
-const downloadExcel =
-()=>{
+const downloadExcel = () => {
+
+ const exportData =
+filteredCustomers.map(customer=>{
+
+ const baseData = {
+
+  Name: customer.name,
+  Company: customer.company,
+  PhoneNumber: customer.phoneNumber,
+  Email: customer.email,
+
+  Service: customer.service,
+  Status: customer.status,
+  CustomerLevel: customer.customerLevel,
+  CallType: customer.callType,
+
+  LeadStatus: customer.leadStatus,
+
+  FollowUpType: customer.followUpType,
+
+  FollowUpDate:
+  customer.followUpDate
+   ? new Date(
+      customer.followUpDate
+     ).toLocaleDateString()
+   : "",
+
+  LeadStage: customer.leadStage,
+  Priority: customer.priority,
+  Source: customer.source,
+
+  AssignedTo:
+  customer.assignedTo || "",
+
+  Sector:
+  customer.sector || "",
+
+  Expense:
+  customer.expense || "",
+
+  Remark:
+  customer.remark || "",
+
+  CreatedDate:
+  customer.createdAt
+   ? new Date(
+      customer.createdAt
+     ).toLocaleString()
+   : ""
+
+ };
+
+ // QUOTATION SHARED
+ if(
+  customer.leadStatus ===
+  "Quotation Shared"
+ ){
+
+  return {
+
+   ...baseData,
+
+   WhatsAppShared:
+   customer.quotationShared
+   ?.whatsappShared
+    ? "Yes"
+    : "No",
+
+   EmailShared:
+   customer.quotationShared
+   ?.emailShared
+    ? "Yes"
+    : "No",
+
+   GSTType:
+   customer.quotationShared
+   ?.gstType || "",
+
+   QuotationNumber:
+   customer.quotationShared
+   ?.quotationNumber || ""
+
+  };
+
+ }
+
+ // CLOSED
+ if(
+  customer.leadStatus ===
+  "Closed"
+ ){
+
+  return {
+
+   ...baseData,
+
+   Engineers:
+   customer.closedDetails
+   ?.engineers
+   ?.join(", ") || "",
+
+   FieldEngineer:
+   customer.closedDetails
+   ?.fieldEngineer || "",
+
+   InvoiceNumber:
+   customer.closedDetails
+   ?.invoiceNumber || "",
+
+   OutsourceName:
+   customer.closedDetails
+   ?.outsourceName || "",
+
+   OutsourceDate:
+   customer.closedDetails
+   ?.outsourceDate
+    ? new Date(
+       customer.closedDetails.outsourceDate
+      ).toLocaleDateString()
+    : "",
+
+   InternalName:
+   customer.closedDetails
+   ?.internalName || "",
+
+   InternalDate:
+   customer.closedDetails
+   ?.internalDate
+    ? new Date(
+       customer.closedDetails.internalDate
+      ).toLocaleDateString()
+    : ""
+
+  };
+
+ }
+
+ return baseData;
+
+});
+
 
  const worksheet =
  XLSX.utils.json_to_sheet(
-  filteredCustomers
+  exportData
  );
 
  const workbook =
  XLSX.utils.book_new();
 
  XLSX.utils.book_append_sheet(
-
   workbook,
-
   worksheet,
-
   "Customers"
-
  );
 
  const excelBuffer =
