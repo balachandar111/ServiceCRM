@@ -3,56 +3,62 @@ const router = express.Router();
 
 const { protect } =
 require("../middlewares/authMiddleware");
+
 const uploadExcel =
 require("../middlewares/uploadExcel");
 
 const {
- userLogin,
+
  createUser,
+ bulkUploadUsers,
  getUsers,
  getUser,
  updateUser,
  deleteUser,
- changeUserStatus,
- myProfile, getPendingLeads,
- approveLead,
- rejectUser,
- updateMyStatus,bulkUploadUsers
+ changeLoginStatus,
+ userLogin,
+ myProfile
+
 } = require("../controllers/userController");
 
-// PUBLIC
-router.post("/login", userLogin);
 
-router.get(
- "/pending",
- protect,
- getPendingLeads
+// =======================
+// PUBLIC
+// =======================
+
+router.post(
+ "/login",
+ userLogin
 );
+
+
+// =======================
+// BULK UPLOAD
+// =======================
+
 router.post(
  "/bulk-upload",
  protect,
  uploadExcel.single("file"),
  bulkUploadUsers
 );
-router.put(
- "/approve/:id",
- protect,
- approveLead
-);
-// USER PROFILE
+
+
+// =======================
+// PROFILE
+// =======================
+
 router.get(
  "/profile",
  protect,
  myProfile
 );
 
-router.put(
- "/my-status",
- protect,
- updateMyStatus
-);
 
-// USERS
+// =======================
+// CREATE USER
+// =======================
+
 router.post(
  "/",
  protect,
@@ -60,30 +66,53 @@ router.post(
 );
 
 
+// =======================
+// GET USERS
+// =======================
+
 router.get(
  "/",
  protect,
  getUsers
 );
 
+
+// =======================
+// CHANGE LOGIN STATUS
+// =======================
+
 router.put(
  "/status/:id",
  protect,
- changeUserStatus
+ changeLoginStatus
 );
 
-// KEEP THESE LAST
+
+// =======================
+// GET SINGLE USER
+// =======================
+
 router.get(
  "/:id",
  protect,
  getUser
 );
 
+
+// =======================
+// UPDATE USER
+// =======================
+
 router.put(
  "/:id",
  protect,
  updateUser
 );
+
+
+// =======================
+// DELETE USER
+// =======================
 
 router.delete(
  "/:id",

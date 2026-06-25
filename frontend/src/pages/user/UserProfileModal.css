@@ -1,0 +1,99 @@
+.profile-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.profile-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.profile-modal .modal-header h2 {
+  font-size: 18px;
+  color: #111827;
+}
+
+.profile-modal .close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.profile-loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.profile-body {
+  padding: 26px 24px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.profile-name {
+  font-size: 19px;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.profile-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 22px;
+  text-align: left;
+}
+
+.profile-grid label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.profile-grid p {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

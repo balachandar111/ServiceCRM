@@ -5,8 +5,15 @@ const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
 const XLSX = require("xlsx");
 
-
-
+// Helper: build query filter based on user role
+// ADMINs and SUPER_ADMINs see all customers;
+// USERs only see the customers they created.
+const buildCreatedByFilter = (user) => {
+  if (user.role === "USER") {
+    return { createdBy: user.id };
+  }
+  return {};
+};
 
 exports.createCustomer =
 async(req,res)=>{
@@ -54,11 +61,13 @@ async(req,res)=>{
 
  try{
 
+  const filter = buildCreatedByFilter(req.user);
+
   const customers =
-  await Customer.find()
+  await Customer.find(filter)
 
   .populate(
-   "assignedTo",
+   "createdBy",
    "name username"
   )
 
@@ -97,7 +106,26 @@ async(req,res)=>{
   const customer =
   await Customer.findById(
    req.params.id
-  );
+  ).populate("createdBy", "name username");
+
+  if (!customer) {
+   return res.status(404).json({
+    success: false,
+    message: "Customer not found"
+   });
+  }
+
+  // USERs can only access customers they created
+  if (
+   req.user.role === "USER" &&
+   customer.createdBy &&
+   customer.createdBy._id.toString() !== req.user.id
+  ) {
+   return res.status(403).json({
+    success: false,
+    message: "Access denied"
+   });
+  }
 
   res.status(200).json({
 
@@ -126,6 +154,27 @@ exports.updateCustomer =
 async(req,res)=>{
 
  try{
+
+  // First fetch the customer to check ownership
+  const existing = await Customer.findById(req.params.id);
+
+  if (!existing) {
+   return res.status(404).json({
+    success: false,
+    message: "Customer not found"
+   });
+  }
+
+  if (
+   req.user.role === "USER" &&
+   existing.createdBy &&
+   existing.createdBy.toString() !== req.user.id
+  ) {
+   return res.status(403).json({
+    success: false,
+    message: "Access denied: you can only update your own customers"
+   });
+  }
 
   const customer =
   await Customer.findByIdAndUpdate(
@@ -171,6 +220,26 @@ async(req,res)=>{
 
  try{
 
+  const existing = await Customer.findById(req.params.id);
+
+  if (!existing) {
+   return res.status(404).json({
+    success: false,
+    message: "Customer not found"
+   });
+  }
+
+  if (
+   req.user.role === "USER" &&
+   existing.createdBy &&
+   existing.createdBy.toString() !== req.user.id
+  ) {
+   return res.status(403).json({
+    success: false,
+    message: "Access denied: you can only delete your own customers"
+   });
+  }
+
   await Customer.findByIdAndDelete(
    req.params.id
   );
@@ -203,8 +272,10 @@ async(req,res)=>{
 
  try{
 
+  const filter = buildCreatedByFilter(req.user);
+
   const customers =
-  await Customer.find();
+  await Customer.find(filter);
 
   const dashboard = {
 
@@ -352,7 +423,9 @@ exports.bulkUploadCustomers = async (req, res) => {
           Number(row.expense) || 0,
 
         remark:
-          row.remark || ""
+          row.remark || "",
+
+        createdBy: req.user.id
       };
 
       // QUOTATION SHARED
@@ -456,8 +529,10 @@ async(req,res)=>{
 
  try{
 
+  const filter = buildCreatedByFilter(req.user);
+
   const customers =
-  await Customer.find();
+  await Customer.find(filter);
 
   const worksheet =
   XLSX.utils.json_to_sheet(
@@ -507,8 +582,10 @@ async(req,res)=>{
 
  try{
 
+  const filter = buildCreatedByFilter(req.user);
+
   const customers =
-  await Customer.find();
+  await Customer.find(filter);
 
   const analytics = {
 

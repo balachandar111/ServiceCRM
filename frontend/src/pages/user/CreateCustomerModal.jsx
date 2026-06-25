@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import API from "../../services/api";
 
 import "./CreateCustomerModal.css"
@@ -7,6 +7,37 @@ const CreateCustomerModal = ({
  refresh,
  closeModal
 }) => {
+
+ const [users,setUsers] =
+ useState([]);
+
+ useEffect(()=>{
+
+  const fetchUsers = async()=>{
+
+   try{
+
+    const {data} =
+    await API.get("/users");
+
+    setUsers(
+     (data.data || []).filter(
+      u => u.role === "USER"
+     )
+    );
+
+   }
+   catch(error){
+
+    console.log(error);
+
+   }
+
+  };
+
+  fetchUsers();
+
+ },[]);
 
  const [form,setForm] = useState({
 
@@ -754,12 +785,18 @@ return (
 
           <div className="form-grid">
 
-            <input
-              placeholder="Assigned To"
+            <select
               name="assignedTo"
               value={form.assignedTo}
               onChange={handleChange}
-            />
+            >
+              <option value="">Unassigned</option>
+              {users.map((u) => (
+                <option key={u._id} value={u.name}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
 
             <input
               placeholder="Sector"

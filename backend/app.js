@@ -70,6 +70,10 @@ require(
   "./routes/customerRoutes"
  )
 );
+app.use(
+  "/api/approvals",
+  require("./routes/Approvalroutes")
+);
 
 
 

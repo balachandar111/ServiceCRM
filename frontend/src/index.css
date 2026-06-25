@@ -303,6 +303,7 @@
  background:#3b82f6;
  color:white;
  border:none;
+ width: 50px;
  padding:8px 12px;
  border-radius:6px;
  cursor:pointer;
@@ -331,6 +332,7 @@
  background:#ef4444;
  color:white;
  border:none;
+  width: 75px;
  padding:8px 12px;
  border-radius:6px;
  cursor:pointer;
@@ -1420,4 +1422,39 @@ textarea{
     flex-direction: column;
     gap: 10px;
   }
+}
+
+
+.upload-btn{
+
+display:flex;
+align-items:center;
+gap:8px;
+
+background:#10b981;
+color:#fff;
+
+padding:10px 18px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+font-size:14px;
+font-weight:600;
+
+transition:.25s;
+
+}
+
+.upload-btn:hover{
+
+background:#059669;
+
+}
+
+.upload-btn input{
+
+display:none;
+
 }

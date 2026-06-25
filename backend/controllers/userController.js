@@ -7,79 +7,78 @@ const XLSX = require("xlsx");
 // =========================
 
 
-exports.createUser = async (req, res) => {
-  try {
+exports.createUser = async(req,res)=>{
 
-    const existingUser =
-      await User.findOne({
-        username: req.body.username
-      });
+ try{
 
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Username Already Exists"
-      });
-    }
+  const {
+   name,
+   username,
+   password,
+   role
+  } = req.body;
 
-    const hashedPassword =
-      await bcrypt.hash(
-        req.body.password,
-        10
-      );
+  const exists =
+  await User.findOne({
+   username
+  });
 
-    // ===== ADD HERE =====
+  if(exists){
 
-    if (
-      req.body.leadStatus === "Closed" &&
-      req.body.closedDetails &&
-      !req.body.closedDetails.invoiceNumber
-    ) {
-      req.body.closedDetails.invoiceNumber =
-        "INV-" + Date.now();
-    }
+   return res.status(400).json({
 
-    // ===== END =====
+    success:false,
 
-    const user = await User.create({
+    message:"Username already exists"
 
-      ...req.body,
-
-      password: hashedPassword,
-
-      role: "USER",
-
-      createdBy: req.user.id,
-
-      organization: req.user.organization,
-
-      approvalStatus: "PENDING",
-
-      loginStatus: "INACTIVE",
-
-    });
-
-    res.status(201).json({
-
-      success: true,
-
-      message:
-        "Lead Created Successfully",
-
-      data: user
-
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+   });
 
   }
+
+  const hashedPassword =
+  await bcrypt.hash(password,10);
+
+  const user =
+  await User.create({
+
+   name,
+
+   username,
+
+   password:hashedPassword,
+
+   role,
+
+   createdBy:req.user.id,
+
+   organization:req.user.organization
+
+  });
+
+  res.status(201).json({
+
+   success:true,
+
+   message:"User Created Successfully",
+
+   data:user
+
+  });
+
+ }
+
+ catch(error){
+
+  res.status(500).json({
+
+   success:false,
+
+   message:error.message
+
+  });
+
+ }
+
 };
 
  exports.bulkUploadUsers = async (req, res) => {
@@ -217,20 +216,26 @@ exports.createUser = async (req, res) => {
 };
 // =========================
 // GET ALL USERS OF ADMIN
-exports.getUsers = async (req,res)=>{
+exports.getUsers = async(req,res)=>{
 
  try{
 
   const users =
-  await User.find({
+  await User.find()
 
-   createdBy:req.user.id,
+  .populate(
+   "createdBy",
+   "name username"
+  )
 
-   role:"USER"
+  .populate(
+   "organization",
+   "organizationName"
+  )
 
-  }).select("-password");
+  .select("-password");
 
-  res.status(200).json({
+  res.json({
 
    success:true,
 
@@ -239,6 +244,7 @@ exports.getUsers = async (req,res)=>{
   });
 
  }
+
  catch(error){
 
   res.status(500).json({
@@ -253,55 +259,63 @@ exports.getUsers = async (req,res)=>{
 
 };
 
-
 // =========================
 // GET SINGLE USER
 // =========================
-exports.getUser = async (req, res) => {
+exports.getUser = async(req,res)=>{
 
-  try {
+ try{
 
-    const user = await User.findOne({
+  const user =
+  await User.findById(
+   req.params.id
+  )
 
-      _id: req.params.id,
+  .populate(
+   "createdBy",
+   "name username"
+  )
 
-      createdBy: req.user.id,
+  .populate(
+   "organization",
+   "organizationName"
+  )
 
-      role: "USER"
+  .select("-password");
 
-    }).select("-password");
+  if(!user){
 
-    if (!user) {
+   return res.status(404).json({
 
-      return res.status(404).json({
+    success:false,
 
-        success: false,
+    message:"User Not Found"
 
-        message: "User Not Found"
-
-      });
-
-    }
-
-    res.status(200).json({
-
-      success: true,
-
-      data: user
-
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
+   });
 
   }
+
+  res.json({
+
+   success:true,
+
+   data:user
+
+  });
+
+ }
+
+ catch(error){
+
+  res.status(500).json({
+
+   success:false,
+
+   message:error.message
+
+  });
+
+ }
 
 };
 
@@ -399,63 +413,76 @@ exports.deleteUser = async (req, res) => {
 // =========================
 // ACTIVE / INACTIVE
 // =========================
-exports.changeUserStatus = async (req, res) => {
+// =========================
+// CHANGE LOGIN STATUS
+// =========================
 
-  try {
+exports.changeLoginStatus = async (req, res) => {
 
-    const user = await User.findOne({
+ try {
 
-      _id: req.params.id,
+  const { loginStatus } = req.body;
 
-      createdBy: req.user.id,
+  if (
+   !["Active", "Inactive"].includes(loginStatus)
+  ) {
 
-      role: "USER"
+   return res.status(400).json({
 
-    });
+    success: false,
 
-    if (!user) {
+    message: "Invalid Login Status"
 
-      return res.status(404).json({
-
-        success: false,
-
-        message: "User Not Found"
-
-      });
-
-    }
-
-    user.loginStatus =
-      user.loginStatus === "ACTIVE"
-        ? "INACTIVE"
-        : "ACTIVE";
-
-    await user.save();
-
-    res.status(200).json({
-
-      success: true,
-
-      message: `User ${user.loginStatus}`,
-
-      data: user
-
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-
-      success: false,
-
-      message: error.message
-
-    });
+   });
 
   }
 
-};
+  const user =
+  await User.findById(req.params.id);
 
+  if (!user) {
+
+   return res.status(404).json({
+
+    success: false,
+
+    message: "User Not Found"
+
+   });
+
+  }
+
+  user.loginStatus = loginStatus;
+
+  await user.save();
+
+  res.status(200).json({
+
+   success: true,
+
+   message:
+   `User ${loginStatus} Successfully`,
+
+   data: user
+
+  });
+
+ }
+ catch (error) {
+
+  console.log(error);
+
+  res.status(500).json({
+
+   success: false,
+
+   message: error.message
+
+  });
+
+ }
+
+};
 // =========================
 // USER LOGIN
 // =========================
@@ -487,21 +514,12 @@ exports.userLogin = async (req, res) => {
 
   // CHECK SUPER ADMIN APPROVAL
 
-  if (user.approvalStatus !== "APPROVED") {
 
-   return res.status(403).json({
 
-    success: false,
-
-    message: "Waiting For Super Admin Approval"
-
-   });
-
-  }
 
   // CHECK ACTIVE STATUS
 
-  if (user.loginStatus !== "ACTIVE") {
+  if (user.loginStatus !== "Active") {
 
    return res.status(403).json({
 
@@ -551,7 +569,7 @@ exports.userLogin = async (req, res) => {
 
     role: user.role,
 
-    approvalStatus: user.approvalStatus,
+  
 
     loginStatus: user.loginStatus
 
@@ -575,131 +593,10 @@ exports.userLogin = async (req, res) => {
  }
 
 };
-exports.getPendingLeads =
-async(req,res)=>{
 
- try{
 
-  const leads =
-  await User.find({
 
-   role:"USER",
 
-   approvalStatus:
-   "PENDING"
-
-  });
-
-  res.status(200).json({
-
-   success:true,
-
-   data:leads
-
-  });
-
- }
- catch(error){
-
-  console.log(error);
-
-  res.status(500).json({
-
-   success:false,
-
-   message:error.message
-
-  });
-
- }
-
-};
-
-exports.approveLead = async (req, res) => {
-
- try {
-
-  const user = await User.findById(
-   req.params.id
-  );
-
-  if (!user) {
-
-   return res.status(404).json({
-
-    success: false,
-
-    message: "Lead Not Found"
-
-   });
-
-  }
-
-  user.approvalStatus = "APPROVED";
-
-  user.loginStatus = "ACTIVE";
-
-  await user.save();
-
-  res.status(200).json({
-
-   success: true,
-
-   message: "Lead Approved Successfully",
-
-   data: user
-
-  });
-
- }
- catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-
-   success: false,
-
-   message: error.message
-
-  });
-
- }
-
-};
-
-exports.rejectUser =
-async(req,res)=>{
-
- try{
-
-  await User.findByIdAndDelete(
-   req.params.id
-  );
-
-  res.status(200).json({
-
-   success:true,
-
-   message:
-   "Lead Rejected"
-
-  });
-
- }
- catch(error){
-
-  res.status(500).json({
-
-   success:false,
-
-   message:error.message
-
-  });
-
- }
-
-};
 exports.myProfile = async (req,res)=>{
 
  try{
@@ -726,62 +623,6 @@ exports.myProfile = async (req,res)=>{
   res.status(500).json({
    success:false,
    message:error.message
-  });
-
- }
-
-};
-exports.updateMyStatus = async (req, res) => {
-
- try {
-
-  const user = await User.findById(
-   req.user.id
-  );
-
-  if (!user) {
-
-   return res.status(404).json({
-    success: false,
-    message: "User Not Found"
-   });
-
-  }
-
-  user.status = req.body.status;
-  user.customerLevel = req.body.customerLevel;
-  user.callType = req.body.callType;
-
-  user.leadStage = req.body.leadStage;
-  user.priority = req.body.priority;
-  user.source = req.body.source;
-
-  user.assignedTo = req.body.assignedTo;
-  user.solution = req.body.solution;
-  user.product = req.body.product;
-  user.sector = req.body.sector;
-
-  user.followUpType = req.body.followUpType;
-  user.followUpDate = req.body.followUpDate;
-
-  user.remark = req.body.remark;
-
-  await user.save();
-
-  res.status(200).json({
-   success: true,
-   message: "Status Updated Successfully",
-   data: user
-  });
-
- }
- catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-   success: false,
-   message: error.message
   });
 
  }
