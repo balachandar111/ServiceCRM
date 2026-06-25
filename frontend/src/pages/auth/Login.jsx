@@ -117,18 +117,27 @@ const Login = () => {
 
     <div className="login-header">
 
-    <div className="logo-circle">
- <FaUserShield />
+  <div className="login-logo-container">
+
+    <img
+      src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782384056/ExpressPc_hlocwh.jpg"
+      alt="Express PC"
+      className="login-logo"
+    />
+
+  </div>
+
+  <h2>Welcome to Express PC</h2>
+
+  <p className="login-subtitle">
+    Manage Leads • Customers • Support
+  </p>
+
+  <span className="login-signin">
+    Sign in to your account
+  </span>
+
 </div>
-
-   <h2>Service CRM</h2>
-<p>Manage Leads • Customers • Support</p>
-
-     <p>
-      Sign in to your account
-     </p>
-
-    </div>
 
     <form
      onSubmit={handleSubmit}
