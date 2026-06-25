@@ -384,74 +384,59 @@
 
 /* ===========================
    SIDEBAR LOGO
-=========================== */
+   /* Sidebar Logo */
+
+.sidebar-logo-container{
+    width:100%;
+    padding:9px 26px 5px;
+
+    justify-content:center;
+    align-items:center;
+}
+
+.sidebar-logo{
+    width:210px;
+    height:100px;
+    object-fit:cover;
+    border-radius:16px;
+    background:#fff;
+
+    padding:1px;
+    border:1px solid #e5e7eb;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+.crm-title{
+    margin-top:5px;
+ margin-right: 7px;
+    font-size:24px;
+    font-weight:700;
+    color:#1e3a8a;
+    letter-spacing:.5px;
+    text-align:center;
+}
+
+/* Tablet */
+
+@media (max-width:768px){
 
 .sidebar-logo{
 
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:5px 5px;
-
-    border-bottom:1px solid #edf2f7;
-
-    background:#ffffff;
+    width:180px;
+    height:65px;
 
 }
 
-.sidebar-logo-img{
-
-    width:85px;
-
-    height:85px;
-
-    object-fit:cover;
-
-    border-radius:18px;
-
-    border:3px solid #2563eb;
-
-    background:#fff;
-
-    padding:4px;
-
-    box-shadow:0 8px 20px rgba(37,99,235,.15);
-
-    margin-bottom:5px;
-
 }
 
-.sidebar-logo-title{
+/* Mobile */
 
-    margin:0;
+@media (max-width:480px){
 
-    font-size:24px;
+.sidebar-logo{
 
-    font-weight:700;
-
-    color:#2563eb;
-
-    letter-spacing:.5px;
+    width:160px;
+    height:58px;
 
 }
-
-.sidebar-logo-subtitle{
-
-    margin-top:4px;
-
-    font-size:13px;
-
-    color:#64748b;
-
-    font-weight:500;
-
-    letter-spacing:.8px;
-
-    text-transform:uppercase;
 
 }

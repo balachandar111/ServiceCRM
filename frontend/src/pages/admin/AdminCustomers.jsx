@@ -24,11 +24,33 @@ const AdminCustomers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [userFilter, setUserFilter] = useState("");
-  const [leadStatusFilter, setLeadStatusFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
-  const [stageFilter, setStageFilter] = useState("");
+ const [search,setSearch]=useState("");
+
+const [userFilter,setUserFilter]=useState("");
+
+const [serviceFilter,setServiceFilter]=useState("");
+
+const [priorityFilter,setPriorityFilter]=useState("");
+
+const [sourceFilter,setSourceFilter]=useState("");
+
+const [stageFilter,setStageFilter]=useState("");
+
+const [statusFilter,setStatusFilter]=useState("");
+
+const [customerLevelFilter,setCustomerLevelFilter]=useState("");
+
+const [callTypeFilter,setCallTypeFilter]=useState("");
+
+const [leadStatusFilter,setLeadStatusFilter]=useState("");
+
+const [followUpTypeFilter,setFollowUpTypeFilter]=useState("");
+
+const [sectorFilter,setSectorFilter]=useState("");
+
+const [fromDate,setFromDate]=useState("");
+
+const [toDate,setToDate]=useState("");
 
 
   const [uploading, setUploading] =
@@ -315,31 +337,175 @@ filteredCustomers.map(customer=>{
 
 };
 
-  const filteredCustomers = customers.filter((customer) => {
-    const searchMatch =
-      (customer.name || "").toLowerCase().includes(search.toLowerCase()) ||
-      (customer.company || "").toLowerCase().includes(search.toLowerCase()) ||
-      (customer.phoneNumber || "").toLowerCase().includes(search.toLowerCase()) ||
-      (customer.email || "").toLowerCase().includes(search.toLowerCase());
+const filteredCustomers = customers.filter(customer=>{
 
-    const userMatch = userFilter
-      ? customer.createdBy?._id === userFilter
-      : true;
+const searchMatch=
 
-    const leadStatusMatch = leadStatusFilter
-      ? customer.leadStatus === leadStatusFilter
-      : true;
+(customer.name||"")
+.toLowerCase()
+.includes(search.toLowerCase())
 
-    const priorityMatch = priorityFilter
-      ? customer.priority === priorityFilter
-      : true;
+||
 
-    const stageMatch = stageFilter
-      ? customer.leadStage === stageFilter
-      : true;
+(customer.company||"")
+.toLowerCase()
+.includes(search.toLowerCase())
 
-    return searchMatch && userMatch && leadStatusMatch && priorityMatch && stageMatch;
-  });
+||
+
+(customer.phoneNumber||"")
+.toLowerCase()
+.includes(search.toLowerCase())
+
+||
+
+(customer.email||"")
+.toLowerCase()
+.includes(search.toLowerCase());
+
+const userMatch=
+userFilter
+?
+customer.createdBy?._id===userFilter
+:
+true;
+
+const serviceMatch=
+serviceFilter
+?
+customer.service===serviceFilter
+:
+true;
+
+const priorityMatch=
+priorityFilter
+?
+customer.priority===priorityFilter
+:
+true;
+
+const sourceMatch=
+sourceFilter
+?
+customer.source===sourceFilter
+:
+true;
+
+const stageMatch=
+stageFilter
+?
+customer.leadStage===stageFilter
+:
+true;
+
+const statusMatch=
+statusFilter
+?
+customer.status===statusFilter
+:
+true;
+
+const customerLevelMatch=
+customerLevelFilter
+?
+customer.customerLevel===customerLevelFilter
+:
+true;
+
+const callTypeMatch=
+callTypeFilter
+?
+customer.callType===callTypeFilter
+:
+true;
+
+const leadStatusMatch=
+leadStatusFilter
+?
+customer.leadStatus===leadStatusFilter
+:
+true;
+
+const followUpMatch=
+followUpTypeFilter
+?
+customer.followUpType===followUpTypeFilter
+:
+true;
+
+const sectorMatch=
+sectorFilter
+?
+customer.sector===sectorFilter
+:
+true;
+
+const dateMatch=(()=>{
+
+if(!fromDate && !toDate)
+return true;
+
+const created=
+new Date(customer.createdAt);
+
+if(
+fromDate &&
+created<new Date(fromDate)
+)
+return false;
+
+if(toDate){
+
+const end=
+new Date(toDate);
+
+end.setHours(
+23,
+59,
+59,
+999
+);
+
+if(created>end)
+return false;
+
+}
+
+return true;
+
+})();
+
+return(
+
+searchMatch &&
+
+userMatch &&
+
+serviceMatch &&
+
+priorityMatch &&
+
+sourceMatch &&
+
+stageMatch &&
+
+statusMatch &&
+
+customerLevelMatch &&
+
+callTypeMatch &&
+
+leadStatusMatch &&
+
+followUpMatch &&
+
+sectorMatch &&
+
+dateMatch
+
+);
+
+});
 
   const indexOfLast = currentPage * customersPerPage;
   const indexOfFirst = indexOfLast - customersPerPage;
@@ -408,68 +574,311 @@ filteredCustomers.map(customer=>{
 
 </div>
 
-      <div className="filters">
-        <h2>Custom Filter:</h2>
+     <div className="filters">
 
-        <select
-          value={userFilter}
-          onChange={(e) => {
-            setUserFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-        >
-          <option value="">All Users</option>
-          {users.map((u) => (
-            <option key={u._id} value={u._id}>
-              {u.name}
-            </option>
-          ))}
-        </select>
+<h2>Custom Filters</h2>
 
-        <select
-          value={leadStatusFilter}
-          onChange={(e) => setLeadStatusFilter(e.target.value)}
-        >
-          <option value="">Lead Status</option>
-          <option>Quotation Shared</option>
-          <option>Closed</option>
-        </select>
+<select
+value={userFilter}
+onChange={(e)=>setUserFilter(e.target.value)}
+>
 
-        <select
-          value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
-        >
-          <option value="">All Priority</option>
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
-        </select>
+<option value="">
+All Users
+</option>
 
-        <select
-          value={stageFilter}
-          onChange={(e) => setStageFilter(e.target.value)}
-        >
-          <option value="">All Stage</option>
-          <option>Awareness</option>
-          <option>Interest</option>
-          <option>Desire</option>
-          <option>Closure</option>
-        </select>
+{
+users.map(user=>(
 
-        <button
-          className="clear-btn"
-          onClick={() => {
-            setSearch("");
-            setUserFilter("");
-            setLeadStatusFilter("");
-            setPriorityFilter("");
-            setStageFilter("");
-            setCurrentPage(1);
-          }}
-        >
-          Clear
-        </button>
-      </div>
+<option
+key={user._id}
+value={user._id}
+>
+
+{user.name}
+
+</option>
+
+))
+}
+
+</select>
+
+<select
+value={serviceFilter}
+onChange={(e)=>setServiceFilter(e.target.value)}
+>
+
+<option value="">
+All Service
+</option>
+
+<option>
+Service
+</option>
+
+<option>
+Product
+</option>
+
+<option>
+Solution
+</option>
+
+<option>
+Service + Product
+</option>
+
+</select>
+
+<select
+value={priorityFilter}
+onChange={(e)=>setPriorityFilter(e.target.value)}
+>
+
+<option value="">
+Priority
+</option>
+
+<option>
+High
+</option>
+
+<option>
+Medium
+</option>
+
+<option>
+Low
+</option>
+
+</select>
+
+<select
+value={sourceFilter}
+onChange={(e)=>setSourceFilter(e.target.value)}
+>
+
+<option value="">
+Source
+</option>
+
+<option>
+Website
+</option>
+
+<option>
+Referral
+</option>
+
+<option>
+Expo
+</option>
+
+<option>
+Social media
+</option>
+
+</select>
+
+<select
+value={stageFilter}
+onChange={(e)=>setStageFilter(e.target.value)}
+>
+
+<option value="">
+Lead Stage
+</option>
+
+<option>
+Awareness
+</option>
+
+<option>
+Interest
+</option>
+
+<option>
+Desire
+</option>
+
+<option>
+Closure
+</option>
+
+</select>
+
+<select
+value={statusFilter}
+onChange={(e)=>setStatusFilter(e.target.value)}
+>
+
+<option value="">
+Status
+</option>
+
+<option>
+Waiting for Internal
+</option>
+
+<option>
+Waiting for External
+</option>
+
+<option>
+Waiting for Customer
+</option>
+
+</select>
+
+<select
+value={customerLevelFilter}
+onChange={(e)=>setCustomerLevelFilter(e.target.value)}
+>
+
+<option value="">
+Customer Level
+</option>
+
+<option>
+New
+</option>
+
+<option>
+Old
+</option>
+
+</select>
+
+<select
+value={callTypeFilter}
+onChange={(e)=>setCallTypeFilter(e.target.value)}
+>
+
+<option value="">
+Call Type
+</option>
+
+<option>
+AMC
+</option>
+
+<option>
+Service
+</option>
+
+<option>
+Sale
+</option>
+
+<option>
+Presales
+</option>
+
+</select>
+
+<select
+value={leadStatusFilter}
+onChange={(e)=>setLeadStatusFilter(e.target.value)}
+>
+
+<option value="">
+Lead Status
+</option>
+
+<option>
+Quotation Shared
+</option>
+
+<option>
+Closed
+</option>
+
+</select>
+
+<select
+value={followUpTypeFilter}
+onChange={(e)=>setFollowUpTypeFilter(e.target.value)}
+>
+
+<option value="">
+Follow Up
+</option>
+
+<option>
+Payment
+</option>
+
+<option>
+Calls
+</option>
+
+<option>
+Both
+</option>
+
+</select>
+
+<input
+type="text"
+placeholder="Sector"
+value={sectorFilter}
+onChange={(e)=>setSectorFilter(e.target.value)}
+/>
+
+<input
+type="date"
+value={fromDate}
+onChange={(e)=>setFromDate(e.target.value)}
+/>
+
+<input
+type="date"
+value={toDate}
+onChange={(e)=>setToDate(e.target.value)}
+/>
+
+<button
+className="clear-btn"
+onClick={()=>{
+
+setSearch("");
+
+setUserFilter("");
+
+setServiceFilter("");
+
+setPriorityFilter("");
+
+setSourceFilter("");
+
+setStageFilter("");
+
+setStatusFilter("");
+
+setCustomerLevelFilter("");
+
+setCallTypeFilter("");
+
+setLeadStatusFilter("");
+
+setFollowUpTypeFilter("");
+
+setSectorFilter("");
+
+setFromDate("");
+
+setToDate("");
+
+}}
+
+>
+
+Clear
+
+</button>
+
+</div>
 
       <div className="table-wrapper">
         <table className="crm-table">

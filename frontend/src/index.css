@@ -568,9 +568,7 @@ body{
   transition:.2s;
 }
 
-.crm-table tbody tr:hover{
-  background:#f8fafc;
-}
+
 
 /* =================================
    BUTTONS

@@ -21,7 +21,7 @@ import {
 import OrganizationList from "./superadmin/OrganizationList";
 import AdminList from "./superadmin/AdminList";
 import UserList from "./admin/UserList";
-import PendingLeads from "./superadmin/PendingLeads";
+
 import AdminDashboard from "./admin/AdminDashboard";
 import SuperAdminDashboard from "./superadmin/SuperAdminDashboard";
 import SmartCalculator from "./user/SmartCalculator";
@@ -73,21 +73,17 @@ const Dashboard = () => {
         }}
       >
         <div>
-   <div className="sidebar-logo">
+<div className="sidebar-logo-container">
 
   <img
     src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782384056/ExpressPc_hlocwh.jpg"
     alt="Express PC"
-    className="sidebar-logo-img"
+    className="sidebar-logo"
   />
 
-  <h2 className="sidebar-logo-title">
-    Express PC
+  <h2 className="crm-title">
+    CRM System
   </h2>
-
-  <span className="sidebar-logo-subtitle">
-    CRM Management
-  </span>
 
 </div>
 
@@ -119,13 +115,7 @@ const Dashboard = () => {
                   <FaUserTie />
                   Admins
                 </li>
-                <li
-                  onClick={() => setActiveMenu("pendingLeads")}
-                  className={`menu-item ${activeMenu === "pendingLeads" ? "active-menu" : ""}`}
-                >
-                  <FaClipboardList />
-                  Pending Leads
-                </li>
+             
               </>
             )}
 
