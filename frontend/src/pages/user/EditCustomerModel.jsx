@@ -62,6 +62,9 @@ const EditCustomerModal = ({ customer, refresh, closeModal }) => {
     }));
   };
 
+  // Determine the current owner user id
+  const currentOwnerId = customer?.createdBy?._id || customer?.createdBy || "";
+
   const [form, setForm] = useState({
     name: customer?.name || "",
     company: customer?.company || "",
@@ -80,6 +83,7 @@ const EditCustomerModal = ({ customer, refresh, closeModal }) => {
     priority: customer?.priority || "Medium",
     source: customer?.source || "Website",
     assignedTo: customer?.assignedTo || "",
+    assignedToUserId: currentOwnerId || "",
     sector: customer?.sector || "",
     expense: customer?.expense || "",
     remark: customer?.remark || "",
@@ -104,11 +108,22 @@ const EditCustomerModal = ({ customer, refresh, closeModal }) => {
     },
   });
 
-  // Track original assignedTo to detect changes
+  // Track original assignedTo (for USER role approval flow)
   const originalAssignedTo = customer?.assignedTo || "";
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Admin assigns to a user — updates both assignedTo (name) and assignedToUserId (_id)
+  const handleAssignedTo = (e) => {
+    const selectedId = e.target.value;
+    const selectedUser = users.find((u) => u._id === selectedId);
+    setForm({
+      ...form,
+      assignedToUserId: selectedId,
+      assignedTo: selectedUser ? selectedUser.name : "",
+    });
   };
 
   const handleQuotation = (e) => {
@@ -147,35 +162,33 @@ const EditCustomerModal = ({ customer, refresh, closeModal }) => {
     e.preventDefault();
 
     try {
-      const assignedToChanged =
-        form.assignedTo !== originalAssignedTo;
+      const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+      const assignedToChanged = form.assignedTo !== originalAssignedTo;
 
-      // For USER role: if assignedTo changed, send approval request instead of
-      // directly saving the new assignedTo. Save everything else normally.
       const bodyToSave = { ...form };
 
-      if (role === "USER" && assignedToChanged) {
-        // Revert assignedTo to original in the customer update
-        bodyToSave.assignedTo = originalAssignedTo;
+      if (isAdmin) {
+        // Admin: apply assignedTo + update createdBy immediately (no approval)
+        // assignedToUserId is already in form, backend will use it to update createdBy
+      } else {
+        // USER role: if assignedTo changed, send approval request; revert in the save
+        if (assignedToChanged) {
+          bodyToSave.assignedTo = originalAssignedTo;
+        }
+        delete bodyToSave.assignedToUserId;
       }
 
       await API.put(`/customers/${customer._id}`, bodyToSave);
 
-      // If assignedTo changed, send an approval request to admin
-      if (assignedToChanged) {
-        if (role === "USER") {
-          await API.post("/approvals", {
-            customerId: customer._id,
-            previousAssignedTo: originalAssignedTo,
-            requestedAssignedTo: form.assignedTo,
-          });
-          alert(
-            "Customer updated successfully.\n\nYour request to change 'Assigned To' has been sent to the admin for approval."
-          );
-        } else {
-          // ADMIN / SUPER_ADMIN — apply directly (no approval needed)
-          alert("Customer Updated Successfully");
-        }
+      if (!isAdmin && assignedToChanged) {
+        await API.post("/approvals", {
+          customerId: customer._id,
+          previousAssignedTo: originalAssignedTo,
+          requestedAssignedTo: form.assignedTo,
+        });
+        alert(
+          "Customer updated successfully.\n\nYour request to change 'Assigned To' has been sent to the admin for approval."
+        );
       } else {
         alert("Customer Updated Successfully");
       }
@@ -503,36 +516,59 @@ const EditCustomerModal = ({ customer, refresh, closeModal }) => {
             <h3>Additional Information</h3>
             <div className="form-grid">
 
-              {/* ── ASSIGNED TO — dropdown of users ── */}
-              <div className="input-group">
-                <label>
-                  Assigned To
-                  {role === "USER" && form.assignedTo !== originalAssignedTo && (
-                    <span
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 11,
-                        color: "#f59e0b",
-                        fontWeight: 600,
-                      }}
-                    >
-                      ⚠ Requires admin approval
+              {/* ── ADMIN: Assign To User dropdown ── */}
+              {(role === "ADMIN" || role === "SUPER_ADMIN") ? (
+                <div className="input-group">
+                  <label>
+                    Assign To User
+                    <span style={{ fontSize: 11, color: "#6b7280", marginLeft: 6, fontWeight: 400 }}>
+                      (customer moves to this user's view)
                     </span>
-                  )}
-                </label>
-                <select
-                  name="assignedTo"
-                  value={form.assignedTo}
-                  onChange={handleChange}
-                >
-                  <option value="">— Unassigned —</option>
-                  {users.map((u) => (
-                    <option key={u._id} value={u.name}>
-                      {u.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  </label>
+                  <select
+                    value={form.assignedToUserId}
+                    onChange={handleAssignedTo}
+                  >
+                    <option value="">— Unassigned (Admin owns) —</option>
+                    {users.map((u) => (
+                      <option key={u._id} value={u._id}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                /* ── USER: regular assignedTo with approval notice ── */
+                <div className="input-group">
+                  <label>
+                    Assigned To
+                    {form.assignedTo !== originalAssignedTo && (
+                      <span
+                        style={{
+                          marginLeft: 8,
+                          fontSize: 11,
+                          color: "#f59e0b",
+                          fontWeight: 600,
+                        }}
+                      >
+                        ⚠ Requires admin approval
+                      </span>
+                    )}
+                  </label>
+                  <select
+                    name="assignedTo"
+                    value={form.assignedTo}
+                    onChange={handleChange}
+                  >
+                    <option value="">— Unassigned —</option>
+                    {users.map((u) => (
+                      <option key={u._id} value={u.name}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <input
                 placeholder="Sector"

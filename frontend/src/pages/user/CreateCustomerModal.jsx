@@ -8,6 +8,8 @@ const CreateCustomerModal = ({
  closeModal
 }) => {
 
+ const role = localStorage.getItem("role");
+
  const [users,setUsers] =
  useState([]);
 
@@ -62,6 +64,7 @@ const CreateCustomerModal = ({
   source:"Website",
 
   assignedTo:"",
+  assignedToUserId:"",
   sector:"",
   expense:"",
   remark:"",
@@ -208,6 +211,17 @@ const deleteOption = (
 
   });
 
+ };
+
+ // Handle user assignment — stores both name and id
+ const handleAssignedTo = (e) => {
+  const selectedId = e.target.value;
+  const selectedUser = users.find(u => u._id === selectedId);
+  setForm({
+   ...form,
+   assignedToUserId: selectedId,
+   assignedTo: selectedUser ? selectedUser.name : "",
+  });
  };
 
  const handleQuotation = (e)=>{
@@ -415,8 +429,6 @@ return (
               <label>Service</label>
              <div className="dropdown-wrapper">
 
-
-
 <div className="dropdown-actions">
 
 <select
@@ -454,8 +466,6 @@ return (
 </button>
 
 </div>
-
-
 
 </div>
             </div>
@@ -785,18 +795,44 @@ return (
 
           <div className="form-grid">
 
-            <select
-              name="assignedTo"
-              value={form.assignedTo}
-              onChange={handleChange}
-            >
-              <option value="">Unassigned</option>
-              {users.map((u) => (
-                <option key={u._id} value={u.name}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
+            {/* Assign To User — admin/super_admin only */}
+            {(role === "ADMIN" || role === "SUPER_ADMIN") && (
+              <div className="input-group">
+                <label>
+                  Assign To User
+                  <span style={{ fontSize: 11, color: "#6b7280", marginLeft: 6, fontWeight: 400 }}>
+                    (customer will appear in selected user's view)
+                  </span>
+                </label>
+                <select
+                  value={form.assignedToUserId}
+                  onChange={handleAssignedTo}
+                >
+                  <option value="">— Unassigned (Admin owns) —</option>
+                  {users.map((u) => (
+                    <option key={u._id} value={u._id}>
+                      {u.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Fallback for regular users (shouldn't show, but safety net) */}
+            {role !== "ADMIN" && role !== "SUPER_ADMIN" && (
+              <select
+                name="assignedTo"
+                value={form.assignedTo}
+                onChange={handleChange}
+              >
+                <option value="">Unassigned</option>
+                {users.map((u) => (
+                  <option key={u._id} value={u.name}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <input
               placeholder="Sector"
