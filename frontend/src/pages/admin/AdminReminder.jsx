@@ -53,7 +53,12 @@ const AdminReminders = () => {
     }
   };
 
-  const formatDate = (date) => date.toISOString().split("T")[0];
+  const formatDate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
 
   // Filter customers by selected user
   const scopedCustomers = customers.filter((customer) =>
@@ -220,7 +225,10 @@ const AdminReminders = () => {
                   <label>Follow Up Date</label>
                   <p>
                     {customerForm.followUpDate
-                      ? new Date(customerForm.followUpDate).toLocaleDateString()
+                      ? (() => {
+                          const [y, m, d] = customerForm.followUpDate.slice(0, 10).split("-");
+                          return `${d}/${m}/${y}`;
+                        })()
                       : "-"}
                   </p>
                 </div>
