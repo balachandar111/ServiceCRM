@@ -5,7 +5,7 @@ const Admin           = require("../models/Admin");
 const User            = require("../models/User");
 const Customer        = require("../models/Customer");
 const SmartCalculator = require("../models/SmartCalculator");
-const resolveCreatedBy = require("../utils/resolveCreatedBy");
+const resolveCreatedBy = require("../utils/resolve-created-by");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER: build stats from a customer array

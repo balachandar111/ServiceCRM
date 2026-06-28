@@ -4,7 +4,7 @@ const Approval = require("../models/Approval");
 const bcrypt = require("bcryptjs");
 
 const generateToken = require("../utils/generateToken");
-const resolveCreatedBy = require("../utils/resolveCreatedBy");
+const resolveCreatedBy = require("../utils/resolve-created-by");
 const XLSX = require("xlsx");
 
 // Helper to auto-create incentive approval when a Closed customer has allocation saved
