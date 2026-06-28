@@ -1,34 +1,3 @@
-// utils/resolveCreatedBy.js
-//
-// ROOT-CAUSE FIX for: "selected admin's users' customers are not visible"
-// and "selected user's customers are not visible" in the SuperAdmin
-// Customers screen.
-//
-// WHY THIS WAS HAPPENING:
-//   - Customer.createdBy is declared with `ref: "User"`.
-//   - User.createdBy is ALSO declared with `ref: "User"`.
-//   - But in practice:
-//       • A User document's createdBy is the ADMIN who created it
-//         (stored in the separate Admin collection).
-//       • A Customer document's createdBy is sometimes a real User,
-//         and sometimes the ADMIN/SUPER_ADMIN who created it directly
-//         (when it wasn't assigned to a specific user).
-//   - Mongoose's `.populate("createdBy")` only looks inside the single
-//     collection named by `ref`. Whenever the id actually belongs to a
-//     *different* collection (Admin instead of User), populate can't
-//     find a match and silently sets the field to `null`.
-//   - The SuperAdmin Customers page filters admins/users/customers on
-//     the FRONTEND by comparing `createdBy._id`. Once createdBy is
-//     null, that record can never match any admin/user filter, so it
-//     just disappears from the filtered list — even though the record
-//     is still in the database and was returned by the API.
-//
-// THE FIX:
-//   Resolve `createdBy` manually by checking BOTH the User and Admin
-//   (and SuperAdmin) collections for a matching id, instead of relying
-//   on Mongoose's single-collection populate. This keeps the existing
-//   DB schema/collections untouched (no data migration needed) and
-//   just fixes how the API responds.
 
 const User = require("../models/User");
 const Admin = require("../models/Admin");
