@@ -28,7 +28,7 @@ import AdminDashboard        from "./admin/AdminDashboard";
 import SuperAdminDashboard   from "./superadmin/SuperAdminDashboard";
 import SuperAdminCustomers   from "./superadmin/SuperAdminCustomers";
 import SuperAdminSmartCalculator from "./superadmin/SuperAdminSmartCalculator";
-import SuperAdminIncentive      from "./superadmin/SuperAdminincentive";
+import SuperAdminIncentive      from "./superadmin/Superadminincentive";
 import SuperAdminReminders      from "./superadmin/SuperAdminReminders";
 
 import SmartCalculator       from "./user/SmartCalculator";
