@@ -395,18 +395,20 @@
 }
 
 .sidebar-logo{
-    width:210px;
-    height:100px;
+  width: 250px;
     object-fit:cover;
-    border-radius:16px;
-    background:#fff;
+  margin-top: -10px;
+    text-align: center;
+   
+    margin-left: 10px;
+    margin-bottom: -10px;
+  
 
-    padding:1px;
-    border:1px solid #e5e7eb;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+   
+
 }
 .crm-title{
-    margin-top:5px;
+    margin-top:-10px;
  margin-right: 7px;
     font-size:24px;
     font-weight:700;

@@ -232,6 +232,7 @@ filteredCustomers.map(customer=>{
   Email: customer.email,
 
   Service: customer.service,
+  ServiceNumber: customer.serviceNumber || "",
   Status: customer.status,
   CustomerLevel: customer.customerLevel,
   CallType: customer.callType,
@@ -316,6 +317,10 @@ filteredCustomers.map(customer=>{
 
    ...baseData,
 
+   ClosedType:
+   customer.closedDetails
+   ?.closedType || "",
+
    Engineers:
    customer.closedDetails
    ?.engineers
@@ -351,7 +356,41 @@ filteredCustomers.map(customer=>{
     ? new Date(
        customer.closedDetails.internalDate
       ).toLocaleDateString()
-    : ""
+    : "",
+
+   BottomLine:
+   customer.closedDetails
+   ?.bottomLine || "",
+
+   AccountManagerName:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.accountManagerName || "",
+
+   AccountManagerAmount:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.accountManagerAmount || 0,
+
+   BackendSupportName:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.backendSupportName || "",
+
+   BackendSupportAmount:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.backendSupportAmount || 0,
+
+   ServiceDeliveryName:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.serviceDeliveryName || "",
+
+   ServiceDeliveryAmount:
+   customer.closedDetails
+   ?.bottomLineAllocation
+   ?.serviceDeliveryAmount || 0
 
   };
 
@@ -848,6 +887,9 @@ Closure
 
  <option>
   Closed
+ </option>
+ <option>
+  Pending
  </option>
 </select>
 

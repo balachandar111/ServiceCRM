@@ -177,11 +177,25 @@ const CreateAdmin =
       required
      />
 
-     <button  className="save-btn">
+     <div style={{ display: "flex", gap: "10px" }}>
 
-      Save Admin
+      <button  className="save-btn">
 
-     </button>
+       Save Admin
+
+      </button>
+
+      <button
+       type="button"
+       className="cancel-btn"
+       onClick={closeModal}
+      >
+
+       Exit
+
+      </button>
+
+     </div>
 
     </form>
 

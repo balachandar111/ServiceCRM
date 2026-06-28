@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const resolveCreatedBy = require("../utils/resolveCreatedBy");
 const XLSX = require("xlsx");
 // =========================
                      
@@ -216,17 +217,19 @@ exports.createUser = async(req,res)=>{
 };
 // =========================
 // GET ALL USERS OF ADMIN
+// ADMIN sees only users they created; SUPER_ADMIN sees all
 exports.getUsers = async(req,res)=>{
 
  try{
 
-  const users =
-  await User.find()
+  const filter = {};
+  if (req.user.role === "ADMIN") {
+    filter.createdBy = req.user.id;
+    filter.role = "USER";
+  }
 
-  .populate(
-   "createdBy",
-   "name username"
-  )
+  const users =
+  await User.find(filter)
 
   .populate(
    "organization",
@@ -235,11 +238,20 @@ exports.getUsers = async(req,res)=>{
 
   .select("-password");
 
+  // NOTE: a User's createdBy is almost always the ADMIN who created
+  // them, and Admins live in a separate collection from Users.
+  // `.populate("createdBy", ...)` only checks the User collection, so
+  // it used to silently null out createdBy for every such user — which
+  // made the "users under this admin" cascading filter on the
+  // SuperAdmin Customers screen come back empty. resolveCreatedBy
+  // checks User, Admin, and SuperAdmin collections instead.
+  const resolved = await resolveCreatedBy(users);
+
   res.json({
 
    success:true,
 
-   data:users
+   data:resolved
 
   });
 
@@ -272,11 +284,6 @@ exports.getUser = async(req,res)=>{
   )
 
   .populate(
-   "createdBy",
-   "name username"
-  )
-
-  .populate(
    "organization",
    "organizationName"
   )
@@ -295,11 +302,13 @@ exports.getUser = async(req,res)=>{
 
   }
 
+  const resolved = await resolveCreatedBy(user);
+
   res.json({
 
    success:true,
 
-   data:user
+   data:resolved
 
   });
 

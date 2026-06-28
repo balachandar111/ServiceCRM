@@ -4,6 +4,7 @@ import "react-calendar/dist/Calendar.css";
 
 import API from "../../services/api";
 import EditCustomerModal from "../user/EditCustomerModel";
+import CustomerDetailsModal from "../user/CustomerDetailsModal";
 
 import "../user/UserReminders.css";
 import "../user/UserCustomers.css";
@@ -172,104 +173,15 @@ const AdminReminders = () => {
       </div>
 
       {showCustomerPopup && customerForm && (
-        <div className="popup-overlay">
-          <div className="customer-popup">
-            <div className="popup-header">
-              <h2>Customer Details</h2>
-              <button
-                className="close-btn2"
-                onClick={() => setShowCustomerPopup(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="popup-content">
-              <div className="detail-grid">
-                <div>
-                  <label>Name</label>
-                  <p>{customerForm.name}</p>
-                </div>
-
-                <div>
-                  <label>Company</label>
-                  <p>{customerForm.company}</p>
-                </div>
-
-                <div>
-                  <label>Phone</label>
-                  <p>{customerForm.phoneNumber}</p>
-                </div>
-
-                <div>
-                  <label>Email</label>
-                  <p>{customerForm.email}</p>
-                </div>
-
-                <div>
-                  <label>Lead Status</label>
-                  <p>{customerForm.leadStatus}</p>
-                </div>
-
-                <div>
-                  <label>Lead Stage</label>
-                  <p>{customerForm.leadStage}</p>
-                </div>
-
-                <div>
-                  <label>Priority</label>
-                  <p>{customerForm.priority}</p>
-                </div>
-
-                <div>
-                  <label>Follow Up Date</label>
-                  <p>
-                    {customerForm.followUpDate
-                      ? (() => {
-                          const [y, m, d] = customerForm.followUpDate.slice(0, 10).split("-");
-                          return `${d}/${m}/${y}`;
-                        })()
-                      : "-"}
-                  </p>
-                </div>
-
-                <div>
-                  <label>Assigned To</label>
-                  <p>{customerForm.assignedTo || "—"}</p>
-                </div>
-
-                <div>
-                  <label>Owner</label>
-                  <p>{customerForm.createdBy?.name || "—"}</p>
-                </div>
-              </div>
-
-              <div className="remarks-box">
-                <label>Remarks</label>
-                <p>{customerForm.remark}</p>
-              </div>
-
-              <div className="popup-actions">
-                <button
-                  className="edit-btn2"
-                  onClick={() => {
-                    setShowCustomerPopup(false);
-                    setEditMode(true);
-                  }}
-                >
-                  Update Customer
-                </button>
-
-                <button
-                  className="delete-btn2"
-                  onClick={() => deleteCustomer(customerForm._id)}
-                >
-                  Delete Customer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CustomerDetailsModal
+          customer={customerForm}
+          closeModal={() => setShowCustomerPopup(false)}
+          onEdit={() => {
+            setShowCustomerPopup(false);
+            setEditMode(true);
+          }}
+          onDelete={() => deleteCustomer(customerForm._id)}
+        />
       )}
 
       {editMode && (

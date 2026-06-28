@@ -2,7 +2,104 @@ const Approval = require("../models/Approval");
 const Customer = require("../models/Customer");
 const User = require("../models/User");
 
-// CREATE — called when a user changes "Assigned To" in EditCustomerModal
+// GET INCENTIVE APPROVALS — admin sees incentive approvals for their users
+exports.getIncentiveApprovals = async (req, res) => {
+  try {
+    // Find users created by this admin
+    const adminUsers = await User.find({
+      createdBy: req.user.id,
+      role: "USER",
+    }).select("_id");
+
+    const userIds = adminUsers.map((u) => u._id);
+    userIds.push(req.user.id); // include admin's own requests too
+
+    const filter = {
+      approvalType: "incentive",
+      requestedBy: { $in: userIds },
+    };
+
+    if (req.query.status) filter.status = req.query.status;
+
+    const approvals = await Approval.find(filter)
+      .populate("customer", "name company leadStatus closedDetails")
+      .populate("requestedBy", "name username")
+      .populate("reviewedBy", "name username")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, data: approvals });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// APPROVE INCENTIVE — admin approves incentive approval
+exports.approveIncentive = async (req, res) => {
+  try {
+    const approval = await Approval.findById(req.params.id);
+
+    if (!approval) {
+      return res.status(404).json({ success: false, message: "Approval not found" });
+    }
+
+    if (approval.approvalType !== "incentive") {
+      return res.status(400).json({ success: false, message: "Not an incentive approval" });
+    }
+
+    if (approval.status !== "Pending") {
+      return res.status(400).json({ success: false, message: "Already reviewed" });
+    }
+
+    approval.status = "Approved";
+    approval.reviewedBy = req.user.id;
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    res.status(200).json({ success: true, message: "Incentive Approved" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// REJECT INCENTIVE
+exports.rejectIncentive = async (req, res) => {
+  try {
+    const approval = await Approval.findById(req.params.id);
+
+    if (!approval) {
+      return res.status(404).json({ success: false, message: "Approval not found" });
+    }
+
+    if (approval.status !== "Pending") {
+      return res.status(400).json({ success: false, message: "Already reviewed" });
+    }
+
+    approval.status = "Rejected";
+    approval.reviewedBy = req.user.id;
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    res.status(200).json({ success: true, message: "Incentive Rejected" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+// GET APPROVAL STATUS FOR A SPECIFIC CUSTOMER
+exports.getCustomerApprovalStatus = async (req, res) => {
+  try {
+    const approval = await Approval.findOne({
+      customer: req.params.customerId,
+      approvalType: "incentive",
+    })
+      .populate("reviewedBy", "name username")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, data: approval || null });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.createApproval = async (req, res) => {
   try {
     const { customerId, previousAssignedTo, requestedAssignedTo } = req.body;
@@ -162,6 +259,81 @@ exports.rejectApproval = async (req, res) => {
       success: true,
       message: "Reassignment rejected",
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ─────────────────────────────────────────────────────────
+// SUPER ADMIN — Incentive Approvals
+// ─────────────────────────────────────────────────────────
+
+// GET ALL incentive approvals across every user/admin in the system
+exports.getSuperAdminIncentiveApprovals = async (req, res) => {
+  try {
+    const filter = { approvalType: "incentive" };
+    if (req.query.status) filter.status = req.query.status;
+
+    const approvals = await Approval.find(filter)
+      .populate("customer", "name company leadStatus closedDetails")
+      .populate({
+        path: "requestedBy",
+        select: "name username createdBy",
+        populate: { path: "createdBy", select: "name username" }, // populate admin name
+      })
+      .populate("reviewedBy", "name username")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, data: approvals });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// APPROVE incentive — super admin approves
+exports.superAdminApproveIncentive = async (req, res) => {
+  try {
+    const approval = await Approval.findById(req.params.id);
+
+    if (!approval) {
+      return res.status(404).json({ success: false, message: "Approval not found" });
+    }
+    if (approval.approvalType !== "incentive") {
+      return res.status(400).json({ success: false, message: "Not an incentive approval" });
+    }
+    if (approval.status !== "Pending") {
+      return res.status(400).json({ success: false, message: "Already reviewed" });
+    }
+
+    approval.status     = "Approved";
+    approval.reviewedBy = req.user.id;
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    res.status(200).json({ success: true, message: "Incentive Approved" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// REJECT incentive — super admin rejects
+exports.superAdminRejectIncentive = async (req, res) => {
+  try {
+    const approval = await Approval.findById(req.params.id);
+
+    if (!approval) {
+      return res.status(404).json({ success: false, message: "Approval not found" });
+    }
+    if (approval.status !== "Pending") {
+      return res.status(400).json({ success: false, message: "Already reviewed" });
+    }
+
+    approval.status     = "Rejected";
+    approval.reviewedBy = req.user.id;
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    res.status(200).json({ success: true, message: "Incentive Rejected" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

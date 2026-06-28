@@ -19,6 +19,11 @@ new mongoose.Schema({
   default:"Service"
  },
 
+ serviceNumber:{
+  type:String,
+  default:""
+ },
+
  status:{
   type:String,
   default:"Waiting for Internal"
@@ -69,11 +74,24 @@ new mongoose.Schema({
 
  closedDetails:{
 
+  // "internal" | "outsource" - which path was chosen in the Closed popup
+  closedType:{
+   type:String,
+   default:""
+  },
+
   engineers:[String],
 
   fieldEngineer:String,
 
   outsourceName:String,
+
+  // reference to the Customer selected from the searchable outsource dropdown
+  outsourceCustomerId:{
+   type:mongoose.Schema.Types.ObjectId,
+   ref:"Customer",
+   default:null
+  },
 
   outsourceDate:Date,
 
@@ -81,7 +99,53 @@ new mongoose.Schema({
 
   internalDate:Date,
 
-  invoiceNumber:String
+  invoiceNumber:String,
+
+  // Total closed amount entered in the "Bottom Line" popup, before
+  // it gets split into the allocation below.
+  bottomLine:{
+   type:String,
+   default:""
+  },
+
+  // Bottom line allocation - split of the closed amount between
+  // Account Manager / Backend Support / Service Delivery.
+  // Saving this on a "Closed" customer auto-triggers an incentive
+  // approval request for the admin (see triggerIncentiveApproval
+  // in customerController.js).
+  bottomLineAllocation:{
+
+   accountManagerName:{
+    type:String,
+    default:""
+   },
+
+   accountManagerAmount:{
+    type:Number,
+    default:0
+   },
+
+   backendSupportName:{
+    type:String,
+    default:""
+   },
+
+   backendSupportAmount:{
+    type:Number,
+    default:0
+   },
+
+   serviceDeliveryName:{
+    type:String,
+    default:""
+   },
+
+   serviceDeliveryAmount:{
+    type:Number,
+    default:0
+   }
+
+  }
 
  },
 

@@ -120,7 +120,7 @@ const Login = () => {
   <div className="login-logo-container">
 
     <img
-      src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782384056/ExpressPc_hlocwh.jpg"
+      src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782639671/logo_thhekj.jpg"
       alt="Express PC"
       className="login-logo"
     />

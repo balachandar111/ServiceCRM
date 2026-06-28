@@ -4,6 +4,7 @@ import React,
  useState
 }
 from "react";
+import "./Adminlist.css";
 
 import API
 from "../../services/api";

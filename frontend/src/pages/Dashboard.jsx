@@ -16,27 +16,44 @@ import {
   FaEnvelope,
   FaShieldAlt,
   FaCalendarAlt,
+  FaGift,
+  FaCalculator,
 } from "react-icons/fa";
 
-import OrganizationList from "./superadmin/OrganizationList";
-import AdminList from "./superadmin/AdminList";
-import UserList from "./admin/UserList";
+import OrganizationList      from "./superadmin/OrganizationList";
+import AdminList             from "./superadmin/AdminList";
+import UserList              from "./admin/UserList";
 
-import AdminDashboard from "./admin/AdminDashboard";
-import SuperAdminDashboard from "./superadmin/SuperAdminDashboard";
-import SmartCalculator from "./user/SmartCalculator";
-import UserCustomers from "./user/UserCustomers";
-import CustomerAnalytics from "./user/CustomerAnalytics";
-import UserReminders from "./user/UserReminders";
-import AdminCustomers from "./admin/AdminCustomers";
-import AdminReminders from "./admin/AdminReminder";
-import AdminSmartCalculator from "./admin/AdminSmartCalculator";
-import Approvals from "./admin/Approvals";
+import AdminDashboard        from "./admin/AdminDashboard";
+import SuperAdminDashboard   from "./superadmin/SuperAdminDashboard";
+import SuperAdminCustomers   from "./superadmin/SuperAdminCustomers";
+import SuperAdminSmartCalculator from "./superadmin/SuperAdminSmartCalculator";
+import SuperAdminIncentive      from "./superadmin/SuperAdminIncentive";
+import SuperAdminReminders      from "./superadmin/SuperAdminReminders";
+
+import SmartCalculator       from "./user/SmartCalculator";
+import UserCustomers         from "./user/UserCustomers";
+import CustomerAnalytics     from "./user/CustomerAnalytics";
+import UserReminders         from "./user/UserReminders";
+import AdminCustomers        from "./admin/AdminCustomers";
+import AdminReminders        from "./admin/AdminReminder";
+import AdminSmartCalculator  from "./admin/AdminSmartCalculator";
+import Approvals             from "./admin/Approvals";
 
 const Dashboard = () => {
-  const role = localStorage.getItem("role");
+  const role         = localStorage.getItem("role");
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const navigate = useNavigate();
+  const navigate     = useNavigate();
+
+  // Shared "scope" filter (selected Admin / selected User) for the Super Admin
+  const [scopeAdmin, setScopeAdmin] = useState("ALL");
+  const [scopeUser,  setScopeUser]  = useState("ALL");
+
+  const goToCustomers = (adminId, userId = "ALL") => {
+    setScopeAdmin(adminId);
+    setScopeUser(userId);
+    setActiveMenu("sa-customers");
+  };
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -47,14 +64,14 @@ const Dashboard = () => {
 
   const roleLabel = {
     SUPER_ADMIN: "Super Admin",
-    ADMIN: "Admin",
-    USER: "User",
+    ADMIN:       "Admin",
+    USER:        "User",
   };
 
   const roleColor = {
     SUPER_ADMIN: "linear-gradient(135deg,#7c3aed,#a855f7)",
-    ADMIN: "linear-gradient(135deg,#2563eb,#3b82f6)",
-    USER: "linear-gradient(135deg,#0891b2,#06b6d4)",
+    ADMIN:       "linear-gradient(135deg,#2563eb,#3b82f6)",
+    USER:        "linear-gradient(135deg,#0891b2,#06b6d4)",
   };
 
   return (
@@ -73,19 +90,14 @@ const Dashboard = () => {
         }}
       >
         <div>
-<div className="sidebar-logo-container">
 
-  <img
-    src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782384056/ExpressPc_hlocwh.jpg"
-    alt="Express PC"
-    className="sidebar-logo"
-  />
-
-  <h2 className="crm-title">
-    CRM System
-  </h2>
-
-</div>
+            <img
+              src="https://res.cloudinary.com/ds4i8pujs/image/upload/v1782639671/logo_thhekj.jpg"
+              alt="Express PC"
+              className="sidebar-logo"
+            />
+            <h2 className="crm-title">CRM System</h2>
+       
 
           <ul className="sidebar-menu" style={{ listStyle: "none", padding: "10px" }}>
 
@@ -115,7 +127,37 @@ const Dashboard = () => {
                   <FaUserTie />
                   Admins
                 </li>
-             
+                <li
+                  onClick={() => setActiveMenu("sa-customers")}
+                  className={`menu-item ${activeMenu === "sa-customers" ? "active-menu" : ""}`}
+                >
+                  <FaClipboardList />
+                  Customers
+                </li>
+                {/* ── SuperAdmin Smart Calculator ── */}
+                <li
+                  onClick={() => setActiveMenu("sa-calculator")}
+                  className={`menu-item ${activeMenu === "sa-calculator" ? "active-menu" : ""}`}
+                >
+                  <FaCalculator />
+                  Smart Calculator
+                </li>
+                {/* ── SuperAdmin Reminders ── */}
+                <li
+                  onClick={() => setActiveMenu("sa-reminders")}
+                  className={`menu-item ${activeMenu === "sa-reminders" ? "active-menu" : ""}`}
+                >
+                  <FaCalendarAlt />
+                  Reminders
+                </li>
+                {/* ── SuperAdmin Incentive Approvals ── */}
+                <li
+                  onClick={() => setActiveMenu("sa-incentive")}
+                  className={`menu-item ${activeMenu === "sa-incentive" ? "active-menu" : ""}`}
+                >
+                  <FaGift />
+                  Incentive Approvals
+                </li>
               </>
             )}
 
@@ -139,7 +181,7 @@ const Dashboard = () => {
                   onClick={() => setActiveMenu("reminders")}
                   className={`menu-item ${activeMenu === "reminders" ? "active-menu" : ""}`}
                 >
-                  <FaClipboardList />
+                  <FaCalendarAlt />
                   Reminders
                 </li>
                 <li
@@ -209,26 +251,55 @@ const Dashboard = () => {
       <div style={{ flex: 1, padding: "30px" }}>
 
         {activeMenu === "organizations" && <OrganizationList />}
-        {activeMenu === "admins" && <AdminList />}
-        {activeMenu === "users" && <UserList />}
-        {activeMenu === "pendingLeads" && <PendingLeads />}
+        {activeMenu === "admins"        && <AdminList goToCustomers={goToCustomers} />}
+        {activeMenu === "users"         && <UserList />}
 
-        {role === "ADMIN" && activeMenu === "dashboard" && <AdminDashboard />}
-        {role === "SUPER_ADMIN" && activeMenu === "dashboard" && <SuperAdminDashboard />}
+        {role === "ADMIN"       && activeMenu === "dashboard" && <AdminDashboard />}
+        {role === "SUPER_ADMIN" && activeMenu === "dashboard" && (
+          <SuperAdminDashboard
+            scopeAdmin={scopeAdmin}
+            scopeUser={scopeUser}
+            setScopeAdmin={setScopeAdmin}
+            setScopeUser={setScopeUser}
+            goToCustomers={goToCustomers}
+          />
+        )}
         {role === "USER" && activeMenu === "dashboard" && <CustomerAnalytics />}
 
-        {activeMenu === "Customers" && <UserCustomers />}
+        {/* Super Admin — Customers */}
+        {role === "SUPER_ADMIN" && activeMenu === "sa-customers" && (
+          <SuperAdminCustomers
+            scopeAdmin={scopeAdmin}
+            scopeUser={scopeUser}
+            setScopeAdmin={setScopeAdmin}
+            setScopeUser={setScopeUser}
+          />
+        )}
+
+        {/* Super Admin — Smart Calculator */}
+        {role === "SUPER_ADMIN" && activeMenu === "sa-calculator" && (
+          <SuperAdminSmartCalculator />
+        )}
+
+        {/* Super Admin — Incentive Approvals */}
+        {role === "SUPER_ADMIN" && activeMenu === "sa-incentive" && (
+          <SuperAdminIncentive />
+        )}
+
+        {/* Super Admin — Reminders */}
+        {role === "SUPER_ADMIN" && activeMenu === "sa-reminders" && (
+          <SuperAdminReminders />
+        )}
+
+        {activeMenu === "Customers"       && <UserCustomers />}
         {activeMenu === "smartcalculator" && <SmartCalculator />}
 
-        {/* USER reminders */}
-        {role === "USER" && activeMenu === "reminders" && <UserReminders />}
-
-        {/* ADMIN reminders — single calendar component */}
+        {role === "USER"  && activeMenu === "reminders" && <UserReminders />}
         {role === "ADMIN" && activeMenu === "reminders" && <AdminReminders />}
 
         {role === "ADMIN" && activeMenu === "customers" && <AdminCustomers />}
         {role === "ADMIN" && activeMenu === "calculator" && <AdminSmartCalculator />}
-        {role === "ADMIN" && activeMenu === "approvals" && <Approvals />}
+        {role === "ADMIN" && activeMenu === "approvals"  && <Approvals />}
 
         {/* ── PROFILE PAGE ── */}
         {activeMenu === "profile" && (
@@ -275,7 +346,6 @@ const Dashboard = () => {
                 position: "relative",
               }}
             >
-              {/* Avatar circle */}
               <div
                 style={{
                   position: "absolute",
@@ -299,7 +369,6 @@ const Dashboard = () => {
                 {(user?.name || "?").charAt(0).toUpperCase()}
               </div>
 
-              {/* Info rows */}
               <div
                 style={{
                   display: "grid",
@@ -308,45 +377,33 @@ const Dashboard = () => {
                   marginTop: "10px",
                 }}
               >
-                {/* Name */}
                 <div style={infoBox}>
-                  <div style={infoIcon("#2563eb")}>
-                    <FaUserCircle />
-                  </div>
+                  <div style={infoIcon("#2563eb")}><FaUserCircle /></div>
                   <div>
                     <p style={infoLabel}>Full Name</p>
                     <p style={infoValue}>{user?.name || "—"}</p>
                   </div>
                 </div>
 
-                {/* Username */}
                 <div style={infoBox}>
-                  <div style={infoIcon("#7c3aed")}>
-                    <FaIdBadge />
-                  </div>
+                  <div style={infoIcon("#7c3aed")}><FaIdBadge /></div>
                   <div>
                     <p style={infoLabel}>Username</p>
                     <p style={infoValue}>{user?.username || "—"}</p>
                   </div>
                 </div>
 
-                {/* Role */}
                 <div style={infoBox}>
-                  <div style={infoIcon("#0891b2")}>
-                    <FaShieldAlt />
-                  </div>
+                  <div style={infoIcon("#0891b2")}><FaShieldAlt /></div>
                   <div>
                     <p style={infoLabel}>Role</p>
                     <p style={infoValue}>{roleLabel[role] || role}</p>
                   </div>
                 </div>
 
-                {/* Email */}
                 {user?.email && (
                   <div style={infoBox}>
-                    <div style={infoIcon("#059669")}>
-                      <FaEnvelope />
-                    </div>
+                    <div style={infoIcon("#059669")}><FaEnvelope /></div>
                     <div>
                       <p style={infoLabel}>Email</p>
                       <p style={infoValue}>{user.email}</p>
@@ -354,12 +411,9 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* Joined */}
                 {user?.createdAt && (
                   <div style={infoBox}>
-                    <div style={infoIcon("#d97706")}>
-                      <FaCalendarAlt />
-                    </div>
+                    <div style={infoIcon("#d97706")}><FaCalendarAlt /></div>
                     <div>
                       <p style={infoLabel}>Joined On</p>
                       <p style={infoValue}>
@@ -373,26 +427,18 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* Status */}
                 {user?.loginStatus && (
                   <div style={infoBox}>
-                    <div
-                      style={infoIcon(
-                        user.loginStatus === "Active" ? "#16a34a" : "#dc2626"
-                      )}
-                    >
+                    <div style={infoIcon(user.loginStatus === "Active" ? "#16a34a" : "#dc2626")}>
                       <FaShieldAlt />
                     </div>
                     <div>
                       <p style={infoLabel}>Status</p>
-                      <p
-                        style={{
-                          ...infoValue,
-                          color:
-                            user.loginStatus === "Active" ? "#16a34a" : "#dc2626",
-                          fontWeight: 700,
-                        }}
-                      >
+                      <p style={{
+                        ...infoValue,
+                        color: user.loginStatus === "Active" ? "#16a34a" : "#dc2626",
+                        fontWeight: 700,
+                      }}>
                         {user.loginStatus}
                       </p>
                     </div>

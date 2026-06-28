@@ -74,6 +74,10 @@ app.use(
   "/api/approvals",
   require("./routes/Approvalroutes")
 );
+app.use(
+  "/api/superadmin-dashboard",
+  require("./routes/superAdminDashboardRoutes")
+);
 
 
 

@@ -201,9 +201,6 @@
  font-size:14px;
 }
 
-.crm-table tr:hover{
- background:#f9fafb;
-}
 
 /* Actions */
 
@@ -215,7 +212,7 @@
 .view-btn,
 .edit-btn,
 .delete-btn{
- width:38px;
+ width:60px;
  height:38px;
  border:none;
  border-radius:8px;
@@ -233,6 +230,7 @@
 
 .delete-btn{
  background:#ef4444;
+  width:70px;
 }
 
 /* Pagination */

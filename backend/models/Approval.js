@@ -18,6 +18,12 @@ const approvalSchema = new mongoose.Schema(
       required: true,
     },
 
+    approvalType: {
+      type: String,
+      enum: ["reassignment", "incentive"],
+      default: "reassignment",
+    },
+
     previousAssignedTo: {
       type: String,
       default: "",

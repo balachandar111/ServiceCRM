@@ -161,6 +161,7 @@ const AdminCustomers = () => {
         PhoneNumber: customer.phoneNumber,
         Email: customer.email,
         Service: customer.service,
+        ServiceNumber: customer.serviceNumber || "",
         Status: customer.status,
         CustomerLevel: customer.customerLevel,
         CallType: customer.callType,
@@ -195,6 +196,7 @@ const AdminCustomers = () => {
       if (customer.leadStatus === "Closed") {
         return {
           ...baseData,
+          ClosedType: customer.closedDetails?.closedType || "",
           Engineers: customer.closedDetails?.engineers?.join(", ") || "",
           FieldEngineer: customer.closedDetails?.fieldEngineer || "",
           InvoiceNumber: customer.closedDetails?.invoiceNumber || "",
@@ -206,6 +208,13 @@ const AdminCustomers = () => {
           InternalDate: customer.closedDetails?.internalDate
             ? new Date(customer.closedDetails.internalDate).toLocaleDateString()
             : "",
+          BottomLine: customer.closedDetails?.bottomLine || "",
+          AccountManagerName: customer.closedDetails?.bottomLineAllocation?.accountManagerName || "",
+          AccountManagerAmount: customer.closedDetails?.bottomLineAllocation?.accountManagerAmount || 0,
+          BackendSupportName: customer.closedDetails?.bottomLineAllocation?.backendSupportName || "",
+          BackendSupportAmount: customer.closedDetails?.bottomLineAllocation?.backendSupportAmount || 0,
+          ServiceDeliveryName: customer.closedDetails?.bottomLineAllocation?.serviceDeliveryName || "",
+          ServiceDeliveryAmount: customer.closedDetails?.bottomLineAllocation?.serviceDeliveryAmount || 0,
         };
       }
 
@@ -430,6 +439,7 @@ const AdminCustomers = () => {
           <option value="">Lead Status</option>
           <option>Quotation Shared</option>
           <option>Closed</option>
+          <option>Pending</option>
         </select>
 
         <select

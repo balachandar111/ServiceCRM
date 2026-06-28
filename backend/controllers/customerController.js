@@ -1,16 +1,56 @@
 const Customer = require("../models/Customer");
 const User = require("../models/User");
+const Approval = require("../models/Approval");
 const bcrypt = require("bcryptjs");
 
 const generateToken = require("../utils/generateToken");
+const resolveCreatedBy = require("../utils/resolveCreatedBy");
 const XLSX = require("xlsx");
 
-// Helper: build query filter based on user role
-// ADMINs and SUPER_ADMINs see all customers;
+// Helper to auto-create incentive approval when a Closed customer has allocation saved
+const triggerIncentiveApproval = async (customer, requestedById) => {
+  try {
+    const alloc = customer.closedDetails?.bottomLineAllocation;
+    const hasAlloc = alloc &&
+      (alloc.accountManagerName || alloc.backendSupportName || alloc.serviceDeliveryName);
+
+    if (customer.leadStatus === "Closed" && hasAlloc) {
+      // Check if there is already a pending/approved incentive approval for this customer
+      const existing = await Approval.findOne({
+        customer: customer._id,
+        approvalType: "incentive",
+        status: { $in: ["Pending", "Approved"] },
+      });
+
+      if (!existing) {
+        await Approval.create({
+          customer: customer._id,
+          customerName: customer.name || "",
+          requestedBy: requestedById,
+          approvalType: "incentive",
+          previousAssignedTo: "",
+          requestedAssignedTo: customer.assignedTo || "",
+        });
+      }
+    }
+  } catch (err) {
+    console.error("triggerIncentiveApproval error:", err.message);
+  }
+};
+// SUPER_ADMINs see all customers;
+// ADMINs see customers created by their users (or themselves);
 // USERs only see the customers they created.
-const buildCreatedByFilter = (user) => {
+const buildCreatedByFilter = async (user) => {
   if (user.role === "USER") {
     return { createdBy: user.id };
+  }
+  if (user.role === "ADMIN") {
+    // Find all users created by this admin
+    const adminUsers = await User.find({ createdBy: user.id, role: "USER" }).select("_id");
+    const userIds = adminUsers.map((u) => u._id);
+    // Include the admin's own id too (in case admin directly created customers)
+    userIds.push(user.id);
+    return { createdBy: { $in: userIds } };
   }
   return {};
 };
@@ -18,6 +58,11 @@ const buildCreatedByFilter = (user) => {
 exports.createCustomer = async (req, res) => {
   try {
     const body = { ...req.body };
+
+    // Empty-string outsourceCustomerId breaks ObjectId casting - normalize to null
+    if (body.closedDetails && body.closedDetails.outsourceCustomerId === "") {
+      body.closedDetails.outsourceCustomerId = null;
+    }
 
     // If admin/super_admin assigns to a user, set createdBy to that user
     if (
@@ -33,6 +78,9 @@ exports.createCustomer = async (req, res) => {
 
     const customer = await Customer.create(body);
 
+    // Auto-trigger incentive approval if Closed + allocation saved
+    await triggerIncentiveApproval(customer, body.createdBy || req.user.id);
+
     res.status(201).json({
       success: true,
       message: "Customer Created",
@@ -45,13 +93,19 @@ exports.createCustomer = async (req, res) => {
 
 exports.getCustomers = async (req, res) => {
   try {
-    const filter = buildCreatedByFilter(req.user);
+    const filter = await buildCreatedByFilter(req.user);
 
-    const customers = await Customer.find(filter)
-      .populate("createdBy", "name username")
-      .sort({ createdAt: -1 });
+    const customers = await Customer.find(filter).sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, data: customers });
+    // NOTE: a customer can be createdBy a real User OR directly by an
+    // Admin/SuperAdmin (when it wasn't assigned to a specific user).
+    // A plain `.populate("createdBy")` only checks the User collection
+    // and silently nulls out the field otherwise — which made those
+    // customers invisible to the SuperAdmin admin/user filters on the
+    // frontend. resolveCreatedBy checks User, Admin, and SuperAdmin.
+    const resolved = await resolveCreatedBy(customers);
+
+    res.status(200).json({ success: true, data: resolved });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -59,10 +113,7 @@ exports.getCustomers = async (req, res) => {
 
 exports.getCustomer = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id).populate(
-      "createdBy",
-      "name username"
-    );
+    const customer = await Customer.findById(req.params.id);
 
     if (!customer) {
       return res
@@ -70,15 +121,17 @@ exports.getCustomer = async (req, res) => {
         .json({ success: false, message: "Customer not found" });
     }
 
+    const resolved = await resolveCreatedBy(customer);
+
     if (
       req.user.role === "USER" &&
-      customer.createdBy &&
-      customer.createdBy._id.toString() !== req.user.id
+      resolved.createdBy &&
+      resolved.createdBy._id.toString() !== req.user.id
     ) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
-    res.status(200).json({ success: true, data: customer });
+    res.status(200).json({ success: true, data: resolved });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -107,6 +160,11 @@ exports.updateCustomer = async (req, res) => {
 
     const body = { ...req.body };
 
+    // Empty-string outsourceCustomerId breaks ObjectId casting - normalize to null
+    if (body.closedDetails && body.closedDetails.outsourceCustomerId === "") {
+      body.closedDetails.outsourceCustomerId = null;
+    }
+
     // If admin/super_admin is changing assignedTo, also update createdBy
     if (
       (req.user.role === "ADMIN" || req.user.role === "SUPER_ADMIN") &&
@@ -121,6 +179,9 @@ exports.updateCustomer = async (req, res) => {
     const customer = await Customer.findByIdAndUpdate(req.params.id, body, {
       new: true,
     });
+
+    // Auto-trigger incentive approval if Closed + allocation saved
+    await triggerIncentiveApproval(customer, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -213,7 +274,7 @@ exports.deleteCustomer = async (req, res) => {
 
 exports.customerDashboard = async (req, res) => {
   try {
-    const filter = buildCreatedByFilter(req.user);
+    const filter = await buildCreatedByFilter(req.user);
     const customers = await Customer.find(filter);
 
     const dashboard = {
@@ -307,7 +368,7 @@ exports.bulkUploadCustomers = async (req, res) => {
 
 exports.downloadCustomers = async (req, res) => {
   try {
-    const filter = buildCreatedByFilter(req.user);
+    const filter = await buildCreatedByFilter(req.user);
     const customers = await Customer.find(filter);
     const worksheet = XLSX.utils.json_to_sheet(customers);
     const workbook = XLSX.utils.book_new();
@@ -322,7 +383,7 @@ exports.downloadCustomers = async (req, res) => {
 
 exports.customerAnalytics = async (req, res) => {
   try {
-    const filter = buildCreatedByFilter(req.user);
+    const filter = await buildCreatedByFilter(req.user);
     const customers = await Customer.find(filter);
 
     const analytics = {

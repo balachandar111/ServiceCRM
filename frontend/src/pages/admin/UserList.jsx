@@ -203,7 +203,7 @@ const UserList = () => {
                   {/* ACTIONS */}
                   <td>
                     <button
-                      className="edit-btn"
+                      className="edit-btn1"
                       onClick={() => {
                         setSelectedUser(user);
                         setShowEdit(true);

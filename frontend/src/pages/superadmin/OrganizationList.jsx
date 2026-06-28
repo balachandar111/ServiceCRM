@@ -10,6 +10,7 @@ from "../../services/api";
 
 import CreateOrganization
 from "./CreateOrganization";
+import "./Adminlist.css";
 
 import EditOrganization
 from "./EditOrganization";

@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React,{
+useState,
+useRef
+} from "react";
 import API from "../../services/api";
 import "./SmartCalculator.css";
 
@@ -6,6 +9,91 @@ const SmartCalculator = () => {
   const [form, setForm] = useState({ companyName: "", orderNo: "" });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const fileInputRef=useRef(null);
+
+const [dragActive,setDragActive]=
+useState(false);
+
+const handleFile=(selected)=>{
+
+if(!selected)return;
+
+const allowed=[
+"application/pdf",
+"image/png"
+];
+
+if(
+!allowed.includes(selected.type)
+){
+
+alert(
+"Only PDF and PNG files are allowed."
+);
+
+return;
+
+}
+
+if(
+selected.size>
+10*1024*1024
+){
+
+alert(
+"Maximum file size is 10 MB."
+);
+
+return;
+
+}
+
+setFile(selected);
+
+};
+
+const handleDrag=(e)=>{
+
+e.preventDefault();
+e.stopPropagation();
+
+if(
+e.type==="dragenter" ||
+e.type==="dragover"
+){
+
+setDragActive(true);
+
+}
+
+else{
+
+setDragActive(false);
+
+}
+
+};
+
+const handleDrop=(e)=>{
+
+e.preventDefault();
+
+e.stopPropagation();
+
+setDragActive(false);
+
+if(
+e.dataTransfer.files &&
+e.dataTransfer.files[0]
+){
+
+handleFile(
+e.dataTransfer.files[0]
+);
+
+}
+
+};
 
   // Get logged-in user info from localStorage (set on login)
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -77,20 +165,144 @@ const SmartCalculator = () => {
           />
         </div>
 
-        <div className="form-group">
-          <label>Upload PNG / PDF</label>
-          <input
-            id="sc-file-input"
-            type="file"
-            accept=".png,.pdf"
-            onChange={(e) => setFile(e.target.files[0])}
-            required
-          />
-        </div>
+       <div className="form-group">
 
-        {file && (
-          <div className="file-preview">Selected File: {file.name}</div>
-        )}
+<label>
+
+Upload Document
+
+</label>
+
+<div
+
+className={`drop-zone ${
+dragActive
+?
+"drag-active"
+:
+""
+}`}
+
+onDragEnter={handleDrag}
+
+onDragLeave={handleDrag}
+
+onDragOver={handleDrag}
+
+onDrop={handleDrop}
+
+onClick={()=>{
+
+fileInputRef.current.click();
+
+}}
+
+>
+
+<div className="drop-icon">
+
+📄
+
+</div>
+
+<h4>
+
+Drag & Drop File Here
+
+</h4>
+
+<p>
+
+or Click to Browse
+
+</p>
+
+<small>
+
+Supported:
+PDF / PNG
+
+(Max 10 MB)
+
+</small>
+
+<input
+
+ref={fileInputRef}
+
+id="sc-file-input"
+
+type="file"
+
+accept=".pdf,.png"
+
+hidden
+
+onChange={(e)=>
+
+handleFile(
+
+e.target.files[0]
+
+)
+
+}
+
+/>
+
+</div>
+
+</div>
+
+      {file && (
+
+<div className="file-preview">
+
+<div>
+
+<h4>
+
+{file.name}
+
+</h4>
+
+<p>
+
+{(
+file.size/
+1024/
+1024
+).toFixed(2)}
+
+MB
+
+</p>
+
+</div>
+
+<button
+
+type="button"
+
+className="remove-file"
+
+onClick={()=>{
+
+setFile(null);
+
+fileInputRef.current.value="";
+
+}}
+
+>
+
+✕
+
+</button>
+
+</div>
+
+)}
 
         <button type="submit" className="upload-btn" disabled={uploading}>
           {uploading ? "Uploading..." : "Upload"}

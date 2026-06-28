@@ -55,7 +55,7 @@ const EditAdmin =
 
    await API.put(
 
-    `/admin/${admin._id}`,
+    `/admins/${admin._id}`,
 
     form
 
@@ -153,11 +153,25 @@ const EditAdmin =
 
      />
 
-     <button  className="save-btn">
+     <div style={{ display: "flex", gap: "10px" }}>
 
-      Update Admin
+      <button  className="save-btn">
 
-     </button>
+       Update Admin
+
+      </button>
+
+      <button
+       type="button"
+       className="cancel-btn"
+       onClick={closeModal}
+      >
+
+       Exit
+
+      </button>
+
+     </div>
 
     </form>
 

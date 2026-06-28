@@ -11,6 +11,7 @@ const customerRoutes =
 require("./routes/customerRoutes");
 
 
+const superAdminDashboardRoutes = require("./routes/superAdminDashboardRoutes");
 const adminRoutes =
 require("./routes/adminRoutes");
 
@@ -29,6 +30,10 @@ app.use(
  "/api/users",
  userRoutes
 );
+
+
+// 2. Register it (paste near your other app.use() calls)
+app.use("/api/superadmin-dashboard", superAdminDashboardRoutes);
 
 app.use(
  "/api/admins",
@@ -58,3 +63,5 @@ app.listen(PORT, ()=>{
  );
 
 });
+
+

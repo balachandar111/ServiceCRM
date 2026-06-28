@@ -188,7 +188,7 @@
 
 /* ACTION BUTTONS */
 
-.edit-btn,
+.edit-btn1,
 .toggle-btn,
 .delete-btn {
   border: none;
@@ -201,7 +201,7 @@
   font-weight: 600;
 }
 
-.edit-btn {
+.edit-btn1 {
   background: #2563eb;
 }
 
@@ -213,7 +213,7 @@
   background: #ef4444;
 }
 
-.edit-btn:hover,
+
 .toggle-btn:hover,
 .delete-btn:hover {
   opacity: 0.9;

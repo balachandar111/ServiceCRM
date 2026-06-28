@@ -77,10 +77,7 @@ body{
     background:#fff;
     border-radius:16px;
     padding:1px;
-    border:1px solid #e5e7eb;
-    box-shadow:
-        0 12px 30px rgba(37,99,235,.15),
-        0 5px 12px rgba(0,0,0,.08);
+  
 }
 
 .login-header h2{
