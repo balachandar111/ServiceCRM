@@ -1,16 +1,7 @@
-
 const User = require("../models/User");
 const Admin = require("../models/Admin");
 const SuperAdmin = require("../models/SuperAdmin");
 
-/**
- * Resolve the `createdBy` field on one document or an array of documents
- * by looking the id up across User, Admin, and SuperAdmin collections.
- *
- * @param {Array|Object} docs - mongoose document(s) or plain object(s)
- * @returns {Promise<Array|Object>} same shape as input, with createdBy
- *          replaced by { _id, name, username, role } or null
- */
 const resolveCreatedBy = async (docs) => {
   const isArray = Array.isArray(docs);
   const list = isArray ? docs : [docs].filter(Boolean);
@@ -20,7 +11,6 @@ const resolveCreatedBy = async (docs) => {
   const getRawId = (doc) => {
     const val = doc.createdBy;
     if (!val) return null;
-    // already-populated object, or plain ObjectId/string
     return (val._id || val).toString();
   };
 
