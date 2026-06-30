@@ -20,6 +20,16 @@ const CustomerDetailsModal = ({
 
   if (!customer) return null;
 
+  // USER -> "User", ADMIN -> "Admin", SUPER_ADMIN -> "Super Admin"
+  const roleLabel = (role) => {
+    if (role === "SUPER_ADMIN") return "Super Admin";
+    if (role === "ADMIN") return "Admin";
+    if (role === "USER") return "User";
+    return role || "Unknown";
+  };
+
+  const remarkHistory = customer.remarkHistory || [];
+
   const approvalBadge = (status) => {
     const styles = {
       Approved: { background: "#dcfce7", color: "#16a34a" },
@@ -259,6 +269,42 @@ const CustomerDetailsModal = ({
               <label>Remarks</label>
               <p>{customer.remark || "No Remarks"}</p>
             </div>
+
+            {remarkHistory.length > 0 && (
+              <div className="remarks-box" style={{ marginTop: 10 }}>
+                <label>Remark Edit History (Complete — {remarkHistory.length})</label>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    margin: "8px 0 0",
+                    padding: 0,
+                    maxHeight: 260,
+                    overflowY: "auto",
+                  }}
+                >
+                  {remarkHistory.map((entry, idx) => (
+                    <li
+                      key={idx}
+                      style={{
+                        padding: "8px 0",
+                        borderTop: idx === 0 ? "none" : "1px solid #e2e8f0",
+                      }}
+                    >
+                      <p style={{ margin: 0, fontSize: 14, color: "#0f172a" }}>
+                        {entry.remark || "No Remarks"}
+                      </p>
+                      <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>
+                        <strong>
+                          {roleLabel(entry.updatedByRole)}:{entry.updatedByName || "Unknown"}
+                        </strong>{" "}
+                        — {entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : "-"}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
           </div>
 
         </div>

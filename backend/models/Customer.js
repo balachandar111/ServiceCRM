@@ -174,6 +174,39 @@ assignedTo:{
 
  remark:String,
 
+ // History of remark edits - newest entry first.
+ // We only keep the latest 3 (see $push + $slice in updateCustomer controller).
+ remarkHistory:[
+  {
+   remark:{
+    type:String,
+    default:""
+   },
+
+   // Who edited it
+   updatedBy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+   },
+
+   updatedByName:{
+    type:String,
+    default:""
+   },
+
+   // USER | ADMIN | SUPER_ADMIN
+   updatedByRole:{
+    type:String,
+    default:""
+   },
+
+   updatedAt:{
+    type:Date,
+    default:Date.now
+   }
+  }
+ ],
+
  createdBy:{
   type:
   mongoose.Schema.Types.ObjectId,

@@ -3,6 +3,7 @@
 
 const Admin           = require("../models/Admin");
 const User            = require("../models/User");
+const SuperAdmin      = require("../models/SuperAdmin");
 const Customer        = require("../models/Customer");
 const SmartCalculator = require("../models/SmartCalculator");
 const resolveCreatedBy = require("../utils/resolve-created-by");
@@ -242,6 +243,20 @@ exports.createCustomerBySuperAdmin = async (req, res) => {
     }
     delete body.assignedToUserId;
 
+    // Log the initial remark (if any) as the first history entry too.
+    if (body.remark) {
+      const editor = await SuperAdmin.findById(req.user.id).select("name");
+      body.remarkHistory = [
+        {
+          remark: body.remark,
+          updatedBy: req.user.id,
+          updatedByName: editor?.name || "Unknown",
+          updatedByRole: "SUPER_ADMIN",
+          updatedAt: new Date(),
+        },
+      ];
+    }
+
     const customer = await Customer.create(body);
     const populated = await resolveCreatedBy(customer);
 
@@ -272,7 +287,38 @@ exports.updateCustomerBySuperAdmin = async (req, res) => {
     }
     delete body.assignedToUserId;
 
-    const customerRaw = await Customer.findByIdAndUpdate(req.params.id, body, { new: true });
+    // ---- Remark edit history tracking ----
+    // req.user.role is always "SUPER_ADMIN" on this route (see
+    // router.use(protect, authorizeRoles("SUPER_ADMIN")) in
+    // superAdminDashboardRoutes.js), and SuperAdmin accounts live in the
+    // separate SuperAdmin collection - so we look the editor's name up
+    // there, not in User/Admin.
+    const updateOps = { $set: body };
+
+    if (
+      Object.prototype.hasOwnProperty.call(body, "remark") &&
+      (body.remark || "") !== (existing.remark || "")
+    ) {
+      const editor = await SuperAdmin.findById(req.user.id).select("name");
+
+      updateOps.$push = {
+        remarkHistory: {
+          $each: [
+            {
+              remark: body.remark || "",
+              updatedBy: req.user.id,
+              updatedByName: editor?.name || "Unknown",
+              updatedByRole: "SUPER_ADMIN",
+              updatedAt: new Date(),
+            },
+          ],
+          // newest first - keep COMPLETE history, no slice/cap
+          $position: 0,
+        },
+      };
+    }
+
+    const customerRaw = await Customer.findByIdAndUpdate(req.params.id, updateOps, { new: true });
     const customer = await resolveCreatedBy(customerRaw);
 
     res.status(200).json({ success: true, message: "Customer Updated", data: customer });

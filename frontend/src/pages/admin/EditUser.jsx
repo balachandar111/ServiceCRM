@@ -93,7 +93,7 @@ const EditUser = ({ user, isAdmin, refresh, closeModal }) => {
                 <label>Role</label>
                 <select name="role" value={form.role} onChange={handleChange}>
                   <option value="USER">User</option>
-                  <option value="ADMIN">Admin</option>
+                
                 </select>
               </div>
 

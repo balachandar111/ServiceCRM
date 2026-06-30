@@ -1,5 +1,7 @@
 const Customer = require("../models/Customer");
 const User = require("../models/User");
+const Admin = require("../models/Admin");
+const SuperAdmin = require("../models/SuperAdmin");
 const Approval = require("../models/Approval");
 const bcrypt = require("bcryptjs");
 
@@ -37,6 +39,31 @@ const triggerIncentiveApproval = async (customer, requestedById) => {
     console.error("triggerIncentiveApproval error:", err.message);
   }
 };
+// USER / ADMIN / SUPER_ADMIN live in 3 separate collections (User, Admin,
+// SuperAdmin) - not one shared "User" model. To correctly attribute a
+// remark edit we must look the editor up in the collection that matches
+// their role, otherwise the name lookup silently fails ("Unknown").
+const getEditorInfo = async (reqUser) => {
+  try {
+    if (reqUser.role === "SUPER_ADMIN") {
+      const sa = await SuperAdmin.findById(reqUser.id).select("name");
+      return { name: sa?.name || "Unknown", role: "SUPER_ADMIN" };
+    }
+
+    if (reqUser.role === "ADMIN") {
+      const admin = await Admin.findById(reqUser.id).select("name role");
+      return { name: admin?.name || "Unknown", role: admin?.role || "ADMIN" };
+    }
+
+    // USER
+    const user = await User.findById(reqUser.id).select("name role");
+    return { name: user?.name || "Unknown", role: user?.role || "USER" };
+  } catch (err) {
+    console.error("getEditorInfo error:", err.message);
+    return { name: "Unknown", role: reqUser.role };
+  }
+};
+
 // SUPER_ADMINs see all customers;
 // ADMINs see customers created by their users (or themselves);
 // USERs only see the customers they created.
@@ -77,6 +104,21 @@ exports.createCustomer = async (req, res) => {
     }
 
     const customer = await Customer.create(body);
+
+    // Log the initial remark (if any) as the first history entry too.
+    if (body.remark) {
+      const editor = await getEditorInfo(req.user);
+      customer.remarkHistory = [
+        {
+          remark: body.remark,
+          updatedBy: req.user.id,
+          updatedByName: editor.name,
+          updatedByRole: editor.role,
+          updatedAt: new Date(),
+        },
+      ];
+      await customer.save();
+    }
 
     // Auto-trigger incentive approval if Closed + allocation saved
     await triggerIncentiveApproval(customer, body.createdBy || req.user.id);
@@ -176,9 +218,41 @@ exports.updateCustomer = async (req, res) => {
       delete body.assignedToUserId;
     }
 
-    const customer = await Customer.findByIdAndUpdate(req.params.id, body, {
-      new: true,
-    });
+    // ---- Remark edit history tracking ----
+    // Only log a history entry when "remark" was actually sent in the
+    // request AND the value is actually different from what's stored.
+    // updatedByRole tells us whether it was a USER, ADMIN or SUPER_ADMIN
+    // edit, and updatedByName/updatedAt are shown in the UI.
+    const updateOps = { $set: body };
+
+    if (
+      Object.prototype.hasOwnProperty.call(body, "remark") &&
+      (body.remark || "") !== (existing.remark || "")
+    ) {
+      const editor = await getEditorInfo(req.user);
+
+      updateOps.$push = {
+        remarkHistory: {
+          $each: [
+            {
+              remark: body.remark || "",
+              updatedBy: req.user.id,
+              updatedByName: editor.name,
+              updatedByRole: editor.role,
+              updatedAt: new Date(),
+            },
+          ],
+          // newest first - keep COMPLETE history, no slice/cap
+          $position: 0,
+        },
+      };
+    }
+
+    const customer = await Customer.findByIdAndUpdate(
+      req.params.id,
+      updateOps,
+      { new: true }
+    );
 
     // Auto-trigger incentive approval if Closed + allocation saved
     await triggerIncentiveApproval(customer, req.user.id);
